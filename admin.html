@@ -2,91 +2,124 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sansthan Admin Audit</title>
+    <title>Admin Audit Dashboard | Banaras Kali Bari</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <style>
+        .active-tab { border-bottom: 2px solid #E67E22; color: #E67E22; }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8 text-[#5A0A0A]">Admin Audit Dashboard</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-green-500">
-                <p class="text-gray-500 text-xs uppercase font-bold">Verified Received</p>
-                <h3 id="statReceived" class="text-2xl font-bold">₹0</h3>
+<body class="bg-gray-50 flex">
+
+    <div class="w-64 bg-[#5A0A0A] text-white min-h-screen p-6">
+        <h2 class="text-xl font-bold mb-10 border-b border-gray-600 pb-4">Sansthan Admin</h2>
+        <nav class="space-y-4">
+            <button onclick="showSection('dashboard')" class="block w-full text-left p-2 hover:bg-red-900">Dashboard</button>
+            <button onclick="showSection('verification')" class="block w-full text-left p-2 hover:bg-red-900">Verification Queue</button>
+            <button onclick="showSection('expenses')" class="block w-full text-left p-2 hover:bg-red-900">Add Expenses</button>
+            <hr class="border-gray-600">
+            <button onclick="logout()" class="block w-full text-left p-2 text-red-300 hover:text-white">Logout</button>
+        </nav>
+    </div>
+
+    <div class="flex-1 p-8">
+        <div id="dashboard" class="content-section">
+            <h1 class="text-2xl font-bold mb-6">Financial Overview</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+                    <p class="text-xs uppercase font-bold text-gray-500">Verified Income</p>
+                    <h3 id="statReceived" class="text-2xl font-bold">₹0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
+                    <p class="text-xs uppercase font-bold text-gray-500">Pending Review</p>
+                    <h3 id="statPending" class="text-2xl font-bold">₹0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500">
+                    <p class="text-xs uppercase font-bold text-gray-500">Total Expenses</p>
+                    <h3 id="statExpenses" class="text-2xl font-bold">₹0</h3>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-yellow-500">
-                <p class="text-gray-500 text-xs uppercase font-bold">Pending Approval</p>
-                <h3 id="statPending" class="text-2xl font-bold">₹0</h3>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-red-500">
-                <p class="text-gray-500 text-xs uppercase font-bold">Total Expenses</p>
-                <h3 id="statExpenses" class="text-2xl font-bold">₹0</h3>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-blue-500">
-                <p class="text-gray-500 text-xs uppercase font-bold">Net Balance</p>
-                <h3 id="statBalance" class="text-2xl font-bold">₹0</h3>
+            <div class="bg-white p-6 rounded-lg shadow w-1/2">
+                <h2 class="font-bold mb-4">Category Distribution</h2>
+                <canvas id="categoryChart"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow p-6 mb-8">
-            <h2 class="font-bold text-xl mb-4">Verification Queue</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead><tr class="border-b"><th class="p-2">Donor</th><th class="p-2">Amount</th><th class="p-2">Transaction #</th><th class="p-2">Action</th></tr></thead>
+        <div id="verification" class="content-section hidden">
+            <h1 class="text-2xl font-bold mb-6">Pending Verifications</h1>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-100"><tr><th class="p-4">Donor</th><th class="p-4">Amount</th><th class="p-4">Category</th><th class="p-4">TX #</th><th class="p-4">Action</th></tr></thead>
                     <tbody id="queueBody"></tbody>
                 </table>
             </div>
         </div>
+
+        <div id="expenses" class="content-section hidden">
+            <h1 class="text-2xl font-bold mb-6">Record Expense</h1>
+            <form id="expenseForm" class="bg-white p-6 rounded-lg shadow w-full max-w-lg space-y-4">
+                <select id="expCat" class="w-full p-2 border rounded">
+                    <option value="Gurukul">Gurukul</option>
+                    <option value="Gaushala">Gaushala</option>
+                    <option value="Kanyadaan">Kanyadaan</option>
+                    <option value="Temple">Temple Renovation</option>
+                </select>
+                <input type="number" id="expAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>
+                <input type="text" id="expDesc" placeholder="Description" class="w-full p-2 border rounded">
+                <button type="submit" class="bg-[#5A0A0A] text-white w-full py-2 rounded">Save Expense</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        // Password Protection
-        const password = prompt("Enter Admin Password:");
-        if (password !== "Kalibadi@2026") { window.location.href = "index.html"; }
+        // Auth
+        if (prompt("Enter Admin Password:") !== "Kalibadi@2026") window.location.href = 'index.html';
 
-        async function initDashboard() {
-            // 1. Fetch Verified Donations
-            const { data: verified } = await supabaseClient.from('donations').select('*').eq('is_verified', true);
-            const sumReceived = verified.reduce((acc, curr) => acc + Number(curr.amount), 0);
-            document.getElementById('statReceived').innerText = "₹" + sumReceived.toLocaleString();
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
 
-            // 2. Fetch Pending
-            const { data: pending } = await supabaseClient.from('donations').select('*').eq('is_verified', false);
-            const sumPending = pending.reduce((acc, curr) => acc + Number(curr.amount), 0);
-            document.getElementById('statPending').innerText = "₹" + sumPending.toLocaleString();
+        function logout() { location.href = 'index.html'; }
 
-            // Populate Queue
-            const tbody = document.getElementById('queueBody');
-            pending.forEach(item => {
-                tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2">${item.donor_name}</td>
-                        <td class="p-2">₹${item.amount}</td>
-                        <td class="p-2"><input type="text" id="tx-${item.id}" placeholder="Enter TX ID" class="border p-1 rounded"></td>
-                        <td class="p-2"><button onclick="approve('${item.id}')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">Verify</button></td>
-                    </tr>
-                `;
+        // Data Logic
+        async function updateDashboard() {
+            // Get Donations
+            const { data: donations } = await supabaseClient.from('donations').select('*');
+            const verified = donations.filter(d => d.is_verified);
+            const pending = donations.filter(d => !d.is_verified);
+            
+            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
+            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
+
+            // Populate Table
+            const body = document.getElementById('queueBody');
+            body.innerHTML = '';
+            pending.forEach(d => {
+                body.innerHTML += `<tr><td class="p-4">${d.donor_name}</td><td class="p-4">₹${d.amount}</td><td class="p-4">${d.initiative_name}</td><td class="p-4"><input type="text" id="tx-${d.id}" class="border p-1 w-24"></td><td class="p-4"><button onclick="verify('${d.id}')" class="bg-green-600 text-white px-3 py-1 rounded">Verify</button></td></tr>`;
             });
         }
 
-        async function approve(id) {
-            const txNumber = document.getElementById(`tx-${id}`).value;
-            if(!txNumber) { alert("Please enter Transaction Number first"); return; }
-            
-            await supabaseClient.from('donations').update({ 
-                is_verified: true, 
-                transaction_number: txNumber,
-                status: 'received'
-            }).eq('id', id);
-            
-            alert("Donation Verified!");
+        async function verify(id) {
+            const tx = document.getElementById('tx-'+id).value;
+            await supabaseClient.from('donations').update({is_verified: true, transaction_number: tx}).eq('id', id);
             location.reload();
         }
 
-        initDashboard();
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await supabaseClient.from('expenses').insert([{
+                expense_category: document.getElementById('expCat').value,
+                amount: document.getElementById('expAmt').value,
+                description: document.getElementById('expDesc').value
+            }]);
+            alert("Expense Added");
+            location.reload();
+        });
+
+        updateDashboard();
     </script>
 </body>
 </html>
