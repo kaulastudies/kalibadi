@@ -12,28 +12,40 @@
         .text-brand-orange { color: #E67E22; }
         .bg-brand-orange { background-color: #E67E22; }
         .bg-brand-green { background-color: #2C3E2D; }
+        .dropdown-menu { display: none; }
+        .dropdown-wrapper:hover .dropdown-menu { display: block; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen text-gray-800">
-
-    <nav class="bg-white shadow-sm w-full z-50">
+    <nav class="bg-white shadow-sm w-full z-50 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                     <div class="w-10 h-10 rounded-full border-2 border-[#E67E22] flex items-center justify-center text-[#E67E22]">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>
                     </div>
-                    <h1 class="heading-font text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
+                    <h1 class="heading-font text-lg md:text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
                 </div>
-                <div class="hidden md:flex space-x-6 items-center">
+                <div class="hidden lg:flex space-x-8 items-center">
                     <a href="index.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Home</a>
-                    <a href="#" class="text-gray-900 border-b-2 border-brand-orange pb-1 font-semibold text-sm">Projects</a>
-                    <a href="contact.html" class="px-5 py-2 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
+                    <a href="about.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">About</a>
+                    <div class="relative dropdown-wrapper pb-2 pt-2">
+                        <button class="text-gray-900 border-b-2 border-brand-orange pb-1 font-semibold text-sm flex items-center">Our Initiatives <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                        <div class="dropdown-menu absolute left-0 top-full mt-0 w-56 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                            <a href="gurukul.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Shankaracharya Gurukul</a>
+                            <a href="gaushala.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Maa Annapurna Gaushala</a>
+                            <a href="kanyadaan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Kanyadaan & Women</a>
+                            <a href="temple-renovation.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Temple Renovation</a>
+                            <a href="nithyannadan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Nithya Annadana</a>
+                        </div>
+                    </div>
+                    <a href="csr.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">CSR & Transparency</a>
+                    <a href="contact.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Contact</a>
+                    <a href="donate.html" class="px-6 py-2.5 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
                 </div>
             </div>
         </div>
     </nav>
-
     <header class="relative bg-brand-orange py-20 overflow-hidden">
         <div class="absolute inset-0 z-0 bg-cover bg-center opacity-20 mix-blend-overlay" style="background-image: url('https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80');"></div>
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10 text-center">
@@ -42,49 +54,33 @@
             <p class="text-[#5A0A0A] text-lg max-w-2xl mx-auto font-medium">Daily distribution of nutritious, sanctified food to the destitute, sadhus, and those in critical need.</p>
         </div>
     </header>
-
     <main class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-16 flex flex-col lg:flex-row gap-12">
         <div class="w-full lg:w-2/3">
             <h2 class="heading-font text-3xl font-bold text-gray-900 mb-6">About the Project</h2>
-            <p class="text-gray-700 leading-relaxed mb-6 text-lg">
-                In Vedic tradition, Annadana (the giving of food) is considered the highest form of charity. No individual in the holy city of Kashi should have to sleep hungry. The Sansthan runs a daily community kitchen (Bhandara) providing fresh, highly nutritious vegetarian meals to hundreds of individuals every day.
-            </p>
-            <p class="text-gray-700 leading-relaxed mb-8 text-lg">
-                Our beneficiaries include wandering sadhus, orphaned children, destitute widows, and daily wage laborers who struggle to afford basic sustenance. The food is prepared with absolute hygiene and spiritual devotion, serving not just the body, but the soul.
-            </p>
-
-            <h3 class="heading-font text-2xl font-bold text-gray-900 mb-4 mt-10">Our Daily Impact</h3>
-            <ul class="space-y-4 text-gray-700 text-lg">
-                <li class="flex items-start"><span class="text-brand-orange font-bold mr-3">✓</span> Serving 500+ fresh, hot meals every single day.</li>
-                <li class="flex items-start"><span class="text-brand-orange font-bold mr-3">✓</span> Distributing dry rations (wheat, rice, lentils) to impoverished families.</li>
-                <li class="flex items-start"><span class="text-brand-orange font-bold mr-3">✓</span> Emergency food relief for the sick and immobile in local wards.</li>
-            </ul>
+            <p class="text-gray-700 leading-relaxed mb-6 text-lg">In Vedic tradition, Annadana (the giving of food) is considered the highest form of charity. No individual in the holy city of Kashi should have to sleep hungry. The Sansthan runs a daily community kitchen providing fresh, highly nutritious vegetarian meals.</p>
+            <p class="text-gray-700 leading-relaxed mb-8 text-lg">Our beneficiaries include wandering sadhus, orphaned children, destitute widows, and daily wage laborers. The food is prepared with absolute hygiene and spiritual devotion, serving not just the body, but the soul.</p>
         </div>
-
         <div class="w-full lg:w-1/3">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sticky top-24">
                 <h3 class="heading-font text-2xl font-bold text-gray-900 mb-2">Feed the Hungry</h3>
-                <p class="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Sponsor a day of meals or contribute to our monthly grocery fund.</p>
-                
+                <p class="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Click a specific initiative below to proceed directly to the donation portal.</p>
                 <div class="space-y-4 mb-8">
-                    <div class="p-4 bg-[#FFF0E6] rounded-xl border border-[#FFDCA8]">
-                        <h4 class="font-bold text-gray-900 text-sm">Sponsor a Day's Bhandara</h4>
-                        <p class="text-xs text-gray-600 mt-1">₹11,000 / day</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <h4 class="font-bold text-gray-900 text-sm">Monthly Dry Rations</h4>
-                        <p class="text-xs text-gray-600 mt-1">₹2,500 / family</p>
-                    </div>
+                    <a href="donate.html?cause=Sponsor%20a%20Day's%20Bhandara&amount=11000" class="block p-5 bg-[#FFF0E6] rounded-xl border border-[#FFDCA8] hover:bg-brand-orange hover:text-white transition-all group shadow-sm hover:shadow-lg cursor-pointer">
+                        <h4 class="font-bold text-gray-900 group-hover:text-white text-base">Sponsor a Day's Bhandara</h4>
+                        <p class="text-brand-orange group-hover:text-white font-bold mt-1 text-xl">₹11,000 <span class="text-xs font-normal opacity-80">/ day</span></p>
+                        <p class="text-[10px] text-gray-500 group-hover:text-white mt-2 uppercase tracking-widest font-bold">➔ Click to Support</p>
+                    </a>
+                    <a href="donate.html?cause=Monthly%20Dry%20Rations&amount=2500" class="block p-5 bg-gray-50 rounded-xl border border-gray-200 hover:bg-brand-green hover:border-brand-green hover:text-white transition-all group shadow-sm hover:shadow-lg cursor-pointer">
+                        <h4 class="font-bold text-gray-900 group-hover:text-white text-base">Monthly Dry Rations</h4>
+                        <p class="text-brand-green group-hover:text-white font-bold mt-1 text-xl">₹2,500 <span class="text-xs font-normal opacity-80">/ family</span></p>
+                        <p class="text-[10px] text-gray-500 group-hover:text-white mt-2 uppercase tracking-widest font-bold">➔ Click to Support</p>
+                    </a>
                 </div>
-
-                <a href="contact.html" class="block text-center w-full py-4 bg-brand-green text-white font-bold rounded-xl hover:bg-[#1E2B1F] transition-all shadow-md">
-                    Donate via YES Bank
-                </a>
+                <a href="donate.html?cause=Annadana%20General%20Fund" class="block text-center w-full py-4 bg-brand-green text-white font-bold rounded-xl hover:bg-[#1E2B1F] transition-all shadow-md">Donate Custom Amount</a>
             </div>
         </div>
     </main>
-
-    <footer class="bg-[#1a1a1a] text-white/60 py-10 text-center text-sm">
+    <footer class="bg-[#1a1a1a] text-white/60 py-12 text-center text-sm mt-auto border-t-4 border-brand-orange">
         <p>&copy; 2026 Banaras Kali Bari Sansthan. 80G & 12A Certified.</p>
     </footer>
 </body>
