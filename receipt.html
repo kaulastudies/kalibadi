@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Donation Receipt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body class="p-10 bg-gray-100">
+    <div id="receipt" class="max-w-2xl mx-auto bg-white p-12 border-2 border-black shadow-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold uppercase underline">Banaras Kali Bari Sansthan</h1>
+            <p class="text-sm">B 13/70 Bangali Tola, Sonarpura, Varanasi</p>
+            <p class="text-xs mt-2 font-bold">80G & 12A Certified NGO</p>
+        </div>
+        
+        <div class="border-t border-b border-gray-400 py-4 mb-6">
+            <h2 class="text-xl font-bold text-center">OFFICIAL DONATION RECEIPT</h2>
+        </div>
+
+        <div class="space-y-4 text-lg">
+            <p><strong>Receipt Date:</strong> <span id="rDate"></span></p>
+            <p><strong>Received with thanks from:</strong> <span id="rName" class="font-bold uppercase underline"></span></p>
+            <p><strong>Place:</strong> <span id="rPlace"></span></p>
+            <p><strong>Sum of Rupees:</strong> <span id="rAmt" class="font-bold underline"></span></p>
+            <p><strong>Towards:</strong> <span id="rCat"></span></p>
+            <p><strong>Payment Mode:</strong> <span id="rMode" class="font-bold"></span></p>
+        </div>
+
+        <div class="mt-16 text-right">
+            <p class="border-t border-black inline-block px-4">Authorized Signatory</p>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto mt-6 no-print">
+        <button onclick="window.print()" class="w-full bg-[#5A0A0A] text-white py-3 rounded-lg font-bold">Print Receipt</button>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('rName').innerText = params.get('name');
+        document.getElementById('rAmt').innerText = "₹" + params.get('amt');
+        document.getElementById('rPlace').innerText = params.get('place');
+        document.getElementById('rCat').innerText = params.get('cat');
+        document.getElementById('rMode').innerText = params.get('mode');
+        document.getElementById('rDate').innerText = new Date().toLocaleDateString();
+    </script>
+</body>
+</html>  
