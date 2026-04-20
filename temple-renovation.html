@@ -12,28 +12,40 @@
         .text-brand-orange { color: #E67E22; }
         .bg-brand-orange { background-color: #E67E22; }
         .bg-brand-green { background-color: #2C3E2D; }
+        .dropdown-menu { display: none; }
+        .dropdown-wrapper:hover .dropdown-menu { display: block; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen text-gray-800">
-
-    <nav class="bg-white shadow-sm w-full z-50">
+    <nav class="bg-white shadow-sm w-full z-50 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                     <div class="w-10 h-10 rounded-full border-2 border-[#E67E22] flex items-center justify-center text-[#E67E22]">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>
                     </div>
-                    <h1 class="heading-font text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
+                    <h1 class="heading-font text-lg md:text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
                 </div>
-                <div class="hidden md:flex space-x-6 items-center">
+                <div class="hidden lg:flex space-x-8 items-center">
                     <a href="index.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Home</a>
-                    <a href="#" class="text-gray-900 border-b-2 border-brand-orange pb-1 font-semibold text-sm">Projects</a>
-                    <a href="contact.html" class="px-5 py-2 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
+                    <a href="about.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">About</a>
+                    <div class="relative dropdown-wrapper pb-2 pt-2">
+                        <button class="text-gray-900 border-b-2 border-brand-orange pb-1 font-semibold text-sm flex items-center">Our Initiatives <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                        <div class="dropdown-menu absolute left-0 top-full mt-0 w-56 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                            <a href="gurukul.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Shankaracharya Gurukul</a>
+                            <a href="gaushala.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Maa Annapurna Gaushala</a>
+                            <a href="kanyadaan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Kanyadaan & Women</a>
+                            <a href="temple-renovation.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Temple Renovation</a>
+                            <a href="nithyannadan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Nithya Annadana</a>
+                        </div>
+                    </div>
+                    <a href="csr.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">CSR & Transparency</a>
+                    <a href="contact.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Contact</a>
+                    <a href="donate.html" class="px-6 py-2.5 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
                 </div>
             </div>
         </div>
     </nav>
-
     <header class="relative bg-brand-green py-20 overflow-hidden">
         <div class="absolute inset-0 z-0 bg-cover bg-center opacity-30 mix-blend-overlay" style="background-image: url('https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80');"></div>
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10 text-center">
@@ -42,47 +54,28 @@
             <p class="text-white/80 text-lg max-w-2xl mx-auto">Identifying and restoring ancient, collapsing temples to preserve the spiritual architecture of Kashi.</p>
         </div>
     </header>
-
     <main class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-16 flex flex-col lg:flex-row gap-12">
         <div class="w-full lg:w-2/3">
             <h2 class="heading-font text-3xl font-bold text-gray-900 mb-6">About the Project</h2>
-            <p class="text-gray-700 leading-relaxed mb-6 text-lg">
-                Kashi is not just a city; it is the spiritual capital of the world, built upon thousands of ancient temples and shrines. Unfortunately, due to the passage of time, lack of maintenance, and weathering, many of these profound architectural and spiritual landmarks are on the verge of collapse.
-            </p>
-            <p class="text-gray-700 leading-relaxed mb-8 text-lg">
-                The Banaras Kali Bari Sansthan actively identifies heritage temples that lack resources and undertakes comprehensive structural renovations. We employ traditional artisans and stone carvers, ensuring that the historical integrity and spiritual sanctity of the original architecture are perfectly maintained.
-            </p>
-
-            <div class="grid grid-cols-2 gap-4 mt-10">
-                <div class="h-48 bg-gray-200 rounded-xl bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1558442805-2b0fc53bb108?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
-                <div class="h-48 bg-gray-200 rounded-xl bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
-            </div>
+            <p class="text-gray-700 leading-relaxed mb-6 text-lg">Kashi is not just a city; it is the spiritual capital of the world, built upon thousands of ancient temples and shrines. Unfortunately, due to the passage of time, lack of maintenance, and weathering, many of these profound architectural landmarks are on the verge of collapse.</p>
+            <p class="text-gray-700 leading-relaxed mb-8 text-lg">The Sansthan actively identifies heritage temples that lack resources and undertakes comprehensive structural renovations. We employ traditional artisans, ensuring the historical integrity of the original architecture is perfectly maintained.</p>
         </div>
-
         <div class="w-full lg:w-1/3">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sticky top-24">
                 <h3 class="heading-font text-2xl font-bold text-gray-900 mb-2">Preserve Heritage</h3>
-                <p class="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Contribute to stone procurement, artisan wages, and architectural restoration.</p>
-                
+                <p class="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Click a specific initiative below to proceed directly to the donation portal.</p>
                 <div class="space-y-4 mb-8">
-                    <div class="p-4 bg-[#FFF0E6] rounded-xl border border-[#FFDCA8]">
-                        <h4 class="font-bold text-gray-900 text-sm">Stone Procurement</h4>
-                        <p class="text-xs text-gray-600 mt-1">Open Contribution</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <h4 class="font-bold text-gray-900 text-sm">Adopt a Temple Roof</h4>
-                        <p class="text-xs text-gray-600 mt-1">₹50,000</p>
-                    </div>
+                    <a href="donate.html?cause=Adopt%20a%20Temple%20Roof&amount=50000" class="block p-5 bg-[#FFF0E6] rounded-xl border border-[#FFDCA8] hover:bg-brand-orange hover:text-white transition-all group shadow-sm hover:shadow-lg cursor-pointer">
+                        <h4 class="font-bold text-gray-900 group-hover:text-white text-base">Adopt a Temple Roof</h4>
+                        <p class="text-brand-orange group-hover:text-white font-bold mt-1 text-xl">₹50,000 <span class="text-xs font-normal opacity-80">/ unit</span></p>
+                        <p class="text-[10px] text-gray-500 group-hover:text-white mt-2 uppercase tracking-widest font-bold">➔ Click to Support</p>
+                    </a>
                 </div>
-
-                <a href="contact.html" class="block text-center w-full py-4 bg-brand-green text-white font-bold rounded-xl hover:bg-[#1E2B1F] transition-all shadow-md">
-                    Donate via YES Bank
-                </a>
+                <a href="donate.html?cause=Temple%20Renovation%20Fund" class="block text-center w-full py-4 bg-brand-green text-white font-bold rounded-xl hover:bg-[#1E2B1F] transition-all shadow-md">Donate Custom Amount</a>
             </div>
         </div>
     </main>
-
-    <footer class="bg-[#1a1a1a] text-white/60 py-10 text-center text-sm">
+    <footer class="bg-[#1a1a1a] text-white/60 py-12 text-center text-sm mt-auto border-t-4 border-brand-orange">
         <p>&copy; 2026 Banaras Kali Bari Sansthan. 80G & 12A Certified.</p>
     </footer>
 </body>
