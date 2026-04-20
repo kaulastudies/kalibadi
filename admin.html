@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sansthan Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-[#5A0A0A]">Admin Audit Dashboard</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+                <p class="text-gray-500 text-sm">Total Donations</p>
+                <h3 id="totalDonations" class="text-2xl font-bold">₹0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-red-500">
+                <p class="text-gray-500 text-sm">Total Expenses</p>
+                <h3 id="totalExpenses" class="text-2xl font-bold">₹0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                <p class="text-gray-500 text-sm">Current Balance</p>
+                <h3 id="netBalance" class="text-2xl font-bold">₹0</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md"><canvas id="donutChart"></canvas></div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="font-bold mb-4">Add New Expense</h2>
+                <form id="expenseForm" class="space-y-3">
+                    <input type="text" id="cat" placeholder="Category (e.g., Gurukul Food)" class="w-full p-2 border rounded">
+                    <input type="number" id="amt" placeholder="Amount" class="w-full p-2 border rounded">
+                    <button type="submit" class="bg-[#5A0A0A] text-white w-full py-2 rounded">Record Expense</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple security: Prompt for a passcode before showing data
+        const passcode = prompt("Enter Admin Passcode:");
+        if (passcode !== "admin123") { window.location.href = "index.html"; }
+
+        async function loadDashboard() {
+            // Fetch Donations
+            const { data: donations } = await supabaseClient.from('donations').select('amount');
+            const totalDonations = donations.reduce((sum, d) => sum + Number(d.amount), 0);
+            
+            // Fetch Expenses
+            const { data: expenses } = await supabaseClient.from('expenses').select('amount');
+            const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+            document.getElementById('totalDonations').innerText = "₹" + totalDonations.toLocaleString();
+            document.getElementById('totalExpenses').innerText = "₹" + totalExpenses.toLocaleString();
+            document.getElementById('netBalance').innerText = "₹" + (totalDonations - totalExpenses).toLocaleString();
+
+            // Render Chart
+            new Chart(document.getElementById('donutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Donations', 'Expenses'],
+                    datasets: [{ data: [totalDonations, totalExpenses], backgroundColor: ['#22c55e', '#ef4444'] }]
+                }
+            });
+        }
+
+        // Add Expense Logic
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await supabaseClient.from('expenses').insert([{
+                expense_category: document.getElementById('cat').value,
+                amount: document.getElementById('amt').value
+            }]);
+            alert("Expense Saved!");
+            location.reload();
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>
