@@ -12,49 +12,53 @@
         .text-brand-orange { color: #E67E22; }
         .bg-brand-orange { background-color: #E67E22; }
         .bg-brand-green { background-color: #2C3E2D; }
+        .dropdown-menu { display: none; }
+        .dropdown-wrapper:hover .dropdown-menu { display: block; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen text-gray-800">
-
-    <nav class="bg-white shadow-sm w-full z-50">
+    <nav class="bg-white shadow-sm w-full z-50 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                     <div class="w-10 h-10 rounded-full border-2 border-[#E67E22] flex items-center justify-center text-[#E67E22]">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>
                     </div>
-                    <h1 class="heading-font text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
+                    <h1 class="heading-font text-lg md:text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
                 </div>
-                <div class="hidden md:flex space-x-6 items-center">
+                <div class="hidden lg:flex space-x-8 items-center">
                     <a href="index.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Home</a>
                     <a href="about.html" class="text-gray-900 border-b-2 border-brand-orange pb-1 font-semibold text-sm">About</a>
-                    <a href="csr.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">CSR</a>
+                    <div class="relative dropdown-wrapper pb-2 pt-2">
+                        <button class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors flex items-center">Our Initiatives <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                        <div class="dropdown-menu absolute left-0 top-full mt-0 w-56 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                            <a href="gurukul.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Shankaracharya Gurukul</a>
+                            <a href="gaushala.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Maa Annapurna Gaushala</a>
+                            <a href="kanyadaan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Kanyadaan & Women</a>
+                            <a href="temple-renovation.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Temple Renovation</a>
+                            <a href="nithyannadan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Nithya Annadana</a>
+                        </div>
+                    </div>
+                    <a href="csr.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">CSR & Transparency</a>
                     <a href="contact.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Contact</a>
-                    <a href="#" class="px-5 py-2 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
+                    <a href="donate.html" class="px-6 py-2.5 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
                 </div>
             </div>
         </div>
     </nav>
-
     <header class="bg-[#5A0A0A] py-20 text-center">
         <div class="max-w-4xl mx-auto px-6">
             <h1 class="heading-font text-4xl md:text-5xl font-bold text-[#D4AF37] mb-4">Preserving Dharma, Building the Future</h1>
             <p class="text-white/80 text-lg">A legacy of sacrifice, education, and unwavering devotion in the holy city of Kashi.</p>
         </div>
     </header>
-
     <main class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-16">
-        
         <section class="flex flex-col md:flex-row gap-12 items-center mb-24">
             <div class="w-full md:w-1/2">
                 <h2 class="heading-font text-3xl font-bold text-gray-900 mb-4">The Founder's Sacrifice</h2>
                 <p class="text-brand-orange font-bold uppercase tracking-widest text-sm mb-6">Pt. Deena Nath Tiwary</p>
-                <p class="text-gray-700 leading-relaxed mb-6 text-lg">
-                    The Banaras Kali Bari Sansthan was not built on surplus wealth, but on absolute devotion. To ensure that the ancient traditions of Gurukul education and Gau Seva continue without interruption, the founders mortgaged their own home.
-                </p>
-                <p class="text-gray-700 leading-relaxed text-lg">
-                    This profound personal sacrifice forms the spiritual and ethical foundation of our Section-8 non-profit. Today, we stand as a beacon of hope in Varanasi, providing 100% free residential education, supporting destitute women, and protecting our sacred heritage.
-                </p>
+                <p class="text-gray-700 leading-relaxed mb-6 text-lg">The Banaras Kali Bari Sansthan was not built on surplus wealth, but on absolute devotion. To ensure that the ancient traditions of Gurukul education and Gau Seva continue without interruption, the founders mortgaged their own home.</p>
+                <p class="text-gray-700 leading-relaxed text-lg">This profound personal sacrifice forms the spiritual and ethical foundation of our Section-8 non-profit. Today, we stand as a beacon of hope in Varanasi, providing 100% free residential education, supporting destitute women, and protecting our sacred heritage.</p>
             </div>
             <div class="w-full md:w-1/2">
                 <div class="bg-[#FFF0E6] p-8 rounded-2xl border border-[#FFDCA8] text-center shadow-lg">
@@ -63,27 +67,21 @@
                 </div>
             </div>
         </section>
-
         <section class="bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
             <h2 class="heading-font text-3xl font-bold text-gray-900 mb-8 text-center">Vision 2030: The ₹500 Crore Gurukul Initiative</h2>
             <div class="grid md:grid-cols-2 gap-12">
                 <div>
                     <h3 class="font-bold text-xl mb-4 text-brand-orange">The Historical Context</h3>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        In the 1850s, India possessed over 7,32,000 Gurukuls. Almost every village had a center of higher learning where 18 different subjects were taught completely free of cost. This system was systematically dismantled, replacing deeply rooted cultural education with a system designed to sever youth from their heritage.
-                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-4">In the 1850s, India possessed over 7,32,000 Gurukuls. Almost every village had a center of higher learning where 18 different subjects were taught completely free of cost. This system was systematically dismantled, replacing deeply rooted cultural education with a system designed to sever youth from their heritage.</p>
                 </div>
                 <div>
                     <h3 class="font-bold text-xl mb-4 text-brand-orange">Our Modern Integration</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Our Vision 2030 aims to reclaim this legacy. We are establishing a 30-acre, state-of-the-art campus where 1,000+ underprivileged boys will receive Vedic knowledge alongside modern English, Hindi, and technological proficiency. We are integrating the spiritual discipline of the past with the global competence required for the future.
-                    </p>
+                    <p class="text-gray-700 leading-relaxed">Our Vision 2030 aims to reclaim this legacy. We are establishing a 30-acre, state-of-the-art campus where 1,000+ underprivileged boys will receive Vedic knowledge alongside modern English, Hindi, and technological proficiency. We are integrating the spiritual discipline of the past with the global competence required for the future.</p>
                 </div>
             </div>
         </section>
     </main>
-
-    <footer class="bg-[#1a1a1a] text-white/60 py-10 text-center text-sm">
+    <footer class="bg-[#1a1a1a] text-white/60 py-12 text-center text-sm mt-auto border-t-4 border-brand-orange">
         <p>&copy; 2026 Banaras Kali Bari Sansthan. 80G & 12A Certified.</p>
     </footer>
 </body>
