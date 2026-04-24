@@ -61,9 +61,15 @@
                 <form id="cashForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
                     <input type="text" id="cName" placeholder="Donor Name" class="w-full p-2 border rounded" required>
                     <input type="text" id="cPlace" placeholder="Place" class="w-full p-2 border rounded" required>
-                    <input type="number" id="cAmt" placeholder="Amount" class="w-full p-2 border rounded" required>
-                    <select id="cCat" class="w-full p-2 border rounded"><option>Gurukul</option><option>Gaushala</option><option>Kanyadaan</option><option>Temple</option></select>
-                    <button type="submit" class="w-full bg-green-700 text-white p-2 rounded">Save & Print Receipt</button>
+                    <input type="number" id="cAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>
+                    <input type="text" id="cPan" placeholder="Donor PAN (Optional for 80G)" class="w-full p-2 border rounded uppercase">
+                    <select id="cCat" class="w-full p-2 border rounded">
+                        <option>Gurukul</option>
+                        <option>Gaushala</option>
+                        <option>Kanyadaan</option>
+                        <option>Temple</option>
+                    </select>
+                    <button type="submit" class="w-full bg-green-700 text-white p-2 rounded hover:bg-green-800 transition">Save & Print Receipt</button>
                 </form>
             </div>
 
@@ -89,11 +95,9 @@
 
         function checkPassword() {
             var pwd = document.getElementById("passInput").value;
-            // Checks for both formats you used
+            // Checks for both formats
             if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {
-                // Remove lock screen
                 document.getElementById("lock-screen").classList.add("hidden");
-                // Show dashboard and fix layout
                 document.getElementById("admin-content").classList.remove("hidden");
                 document.getElementById("admin-content").classList.add("flex");
                 document.getElementById("main-body").classList.remove("items-center", "justify-center");
@@ -106,15 +110,14 @@
             }
         }
 
-        // 2. Original Dashboard Navigation
+        // 2. Dashboard Navigation
         function show(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // 3. Original Supabase Data Fetching
+        // 3. Supabase Data Fetching
         async function init() {
-            // Fetch Donations & Expenses
             const { data: donations } = await supabaseClient.from('donations').select('*');
             const { data: expenses } = await supabaseClient.from('expenses').select('*');
             
@@ -122,25 +125,24 @@
             const pending = donations.filter(d => !d.is_verified);
             const totalExp = expenses.reduce((a,b) => a + Number(b.amount), 0);
             
-            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
-            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
-            document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString();
+            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');
+            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');
+            document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString('en-IN');
 
-            // Populate Table
             const body = document.getElementById('queueBody');
-            body.innerHTML = ''; // Clear loading state
+            body.innerHTML = ''; 
             pending.forEach(d => {
-                body.innerHTML += `<tr><td class="p-4">${d.donor_name}</td><td class="p-4">₹${d.amount}</td><td class="p-4">${d.payment_mode}</td><td class="p-4"><button onclick="verify('${d.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Approve</button></td></tr>`;
+                body.innerHTML += `<tr><td class="p-4">${d.donor_name}</td><td class="p-4">₹${d.amount}</td><td class="p-4">${d.payment_mode}</td><td class="p-4"><button onclick="verify('${d.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-sm hover:bg-blue-700">Approve</button></td></tr>`;
             });
         }
 
-        // 4. Original Verification Action
+        // 4. Verification Action
         async function verify(id) {
             await supabaseClient.from('donations').update({is_verified: true}).eq('id', id);
             location.reload();
         }
 
-        // 5. Original Expense Form Submit
+        // 5. Expense Form Submit
         document.getElementById('expenseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await supabaseClient.from('expenses').insert([{
@@ -148,19 +150,31 @@
                 amount: document.getElementById('expAmt').value,
                 description: document.getElementById('expDesc').value
             }]);
-            alert("Expense Added"); 
+            alert("Expense Added Successfully"); 
             location.reload();
         });
 
-        // 6. Original Manual Cash Receipt Form
+        // 6. UPGRADED Manual Cash Receipt Form (with PAN support)
         document.getElementById('cashForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('cName').value;
             const amt = document.getElementById('cAmt').value;
             const place = document.getElementById('cPlace').value;
             const cat = document.getElementById('cCat').value;
-            await supabaseClient.from('donations').insert([{donor_name: name, amount: amt, donor_place: place, initiative_name: cat, payment_mode: 'Cash', is_verified: true}]);
-            window.location.href = `receipt.html?name=${name}&amt=${amt}&place=${place}&cat=${cat}&mode=Cash`;
+            const pan = document.getElementById('cPan').value.toUpperCase(); // Capture PAN
+
+            // Insert core data into Supabase
+            await supabaseClient.from('donations').insert([{
+                donor_name: name, 
+                amount: amt, 
+                donor_place: place, 
+                initiative_name: cat, 
+                payment_mode: 'Cash', 
+                is_verified: true
+            }]);
+            
+            // Redirect to the new professional receipt, securely encoding all variables including PAN
+            window.location.href = `receipt.html?name=${encodeURIComponent(name)}&amt=${amt}&place=${encodeURIComponent(place)}&cat=${encodeURIComponent(cat)}&mode=Cash&pan=${encodeURIComponent(pan)}`;
         });
     </script>
 </body>
