@@ -2,122 +2,273 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Audit Dashboard | Banaras Kali Bari</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashram Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .hidden-gate { display: none !important; }
+    </style>
 </head>
-<body class="bg-gray-100 flex min-h-screen">
+<body class="text-gray-800 font-sans min-h-screen flex flex-col items-center">
 
-    <div class="w-64 bg-[#5A0A0A] text-white p-6">
-        <h2 class="text-xl font-bold mb-10 border-b border-red-900 pb-4">Sansthan Admin</h2>
-        <div class="space-y-4">
-            <button onclick="show('dashboard')" class="w-full text-left p-2 hover:bg-red-900 rounded">Dashboard</button>
-            <button onclick="show('verification')" class="w-full text-left p-2 hover:bg-red-900 rounded">Verification Queue</button>
-            <button onclick="show('cashEntry')" class="w-full text-left p-2 hover:bg-red-900 rounded">Manual Cash Entry</button>
-            <button onclick="show('expenses')" class="w-full text-left p-2 hover:bg-red-900 rounded">Add Expense</button>
-            <hr class="border-red-900 my-4">
-            <button onclick="location.href='index.html'" class="w-full text-left p-2 text-red-300">Logout</button>
+    <div id="lock-screen" class="flex-1 w-full flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border-t-4 border-indigo-600">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Admin Gateway</h2>
+            <p class="text-sm text-gray-500 mb-6">Banaras Kalibari Command Center</p>
+            
+            <input type="password" id="passInput" placeholder="Enter Password" 
+                   class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            
+            <button onclick="checkPassword()" 
+                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition">
+                Unlock Dashboard
+            </button>
+            
+            <p id="error-msg" class="text-red-500 font-bold mt-4 hidden-gate">Incorrect Password. Access Denied.</p>
         </div>
     </div>
 
-    <div class="flex-1 p-8">
-        <div id="dashboard" class="page">
-            <h1 class="text-2xl font-bold mb-6">Financial Overview</h1>
-            <div class="grid grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500"><p class="text-xs text-gray-500 uppercase font-bold">Verified Income</p><h3 id="statReceived" class="text-2xl font-bold text-green-600">₹0</h3></div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500"><p class="text-xs text-gray-500 uppercase font-bold">Pending Approval</p><h3 id="statPending" class="text-2xl font-bold text-yellow-600">₹0</h3></div>
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500"><p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p><h3 id="statExpenses" class="text-2xl font-bold text-red-600">₹0</h3></div>
+    <div id="admin-content" class="hidden-gate w-full max-w-7xl mx-auto p-6 space-y-6">
+        
+        <header class="bg-white p-6 rounded-xl shadow-md border-t-4 border-indigo-600 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Command Center</h1>
+                <p class="text-sm text-gray-500 mt-1">Live Operations & Financial Ledger</p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow w-96"><canvas id="myChart"></canvas></div>
-        </div>
-
-        <div id="verification" class="page hidden">
-            <h1 class="text-2xl font-bold mb-6">Pending Verifications</h1>
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-gray-100"><tr><th class="p-4">Donor</th><th class="p-4">Amount</th><th class="p-4">Mode</th><th class="p-4">Action</th></tr></thead><tbody id="queueBody"></tbody></table>
+            <div class="flex flex-wrap gap-4 text-right items-center">
+                <div class="px-2">
+                    <p class="text-xs text-gray-500 uppercase font-bold">Total Revenue</p>
+                    <p class="text-xl font-bold text-green-600" id="ui-revenue">₹0</p>
+                </div>
+                <div class="px-2">
+                    <p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p>
+                    <p class="text-xl font-bold text-red-600" id="ui-expenses">₹0</p>
+                </div>
+                <div class="bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
+                    <p class="text-xs text-indigo-800 uppercase font-bold">Net Cash</p>
+                    <p class="text-2xl font-black text-indigo-700" id="ui-net">₹0</p>
+                </div>
+                <button onclick="logout()" class="ml-4 bg-gray-200 text-gray-700 px-4 py-2 rounded font-bold hover:bg-gray-300">Lock</button>
             </div>
-        </div>
+        </header>
 
-        <div id="cashEntry" class="page hidden">
-            <h1 class="text-2xl font-bold mb-6">Record Manual Cash</h1>
-            <form id="cashForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
-                <input type="text" id="cName" placeholder="Donor Name" class="w-full p-2 border rounded" required>
-                <input type="text" id="cPlace" placeholder="Place" class="w-full p-2 border rounded" required>
-                <input type="number" id="cAmt" placeholder="Amount" class="w-full p-2 border rounded" required>
-                <select id="cCat" class="w-full p-2 border rounded"><option>Gurukul</option><option>Gaushala</option><option>Kanyadaan</option><option>Temple</option></select>
-                <button type="submit" class="w-full bg-green-700 text-white p-2 rounded">Save & Print Receipt</button>
-            </form>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">Room Grid</h2>
+                <div id="room-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    </div>
+            </div>
 
-        <div id="expenses" class="page hidden">
-            <h1 class="text-2xl font-bold mb-6">Add New Expense</h1>
-            <form id="expenseForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
-                <select id="expCat" class="w-full p-2 border rounded">
-                    <option value="Gurukul">Gurukul</option><option value="Gaushala">Gaushala</option><option value="Kanyadaan">Kanyadaan</option><option value="Temple">Temple Renovation</option>
-                </select>
-                <input type="number" id="expAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>
-                <input type="text" id="expDesc" placeholder="Description" class="w-full p-2 border rounded">
-                <button type="submit" class="w-full bg-[#5A0A0A] text-white p-2 rounded">Save Expense</button>
-            </form>
+            <div class="space-y-6">
+                
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500 min-h-[300px]">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Front Desk</h2>
+                    <div id="front-desk-panel">
+                        <div class="text-gray-400 text-center py-8">Select a room from the grid to manage operations.</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2 text-red-600">Log Ashram Expense</h2>
+                    <div class="space-y-3">
+                        <input type="text" id="expDesc" placeholder="What was bought? (e.g. Groceries)" class="w-full p-2 border rounded">
+                        <input type="number" id="expAmount" placeholder="Amount (₹)" class="w-full p-2 border rounded">
+                        <button onclick="addExpense()" class="w-full bg-red-600 text-white font-bold py-2 rounded hover:bg-red-700">Deduct from Ledger</button>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script>
-        if (prompt("Enter Password:") !== "Kalibadi@2026") location.href = "index.html";
-        
-        function show(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+        // --- SECURITY LOGIC ---
+        document.getElementById("passInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") checkPassword();
+        });
+
+        function checkPassword() {
+            if (document.getElementById("passInput").value === "kalibadi2026") {
+                document.getElementById("lock-screen").classList.add("hidden-gate");
+                document.getElementById("admin-content").classList.remove("hidden-gate");
+                document.body.classList.remove("items-center"); // Fix layout for dashboard
+                renderApp(); // Start the system
+            } else {
+                document.getElementById("error-msg").classList.remove("hidden-gate");
+                document.getElementById("passInput").value = "";
+            }
         }
 
-        async function init() {
-            // Fetch Donations & Expenses
-            const { data: donations } = await supabaseClient.from('donations').select('*');
-            const { data: expenses } = await supabaseClient.from('expenses').select('*');
-            
-            const verified = donations.filter(d => d.is_verified);
-            const pending = donations.filter(d => !d.is_verified);
-            const totalExp = expenses.reduce((a,b) => a + Number(b.amount), 0);
-            
-            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
-            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
-            document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString();
+        function logout() {
+            document.getElementById("admin-content").classList.add("hidden-gate");
+            document.getElementById("lock-screen").classList.remove("hidden-gate");
+            document.body.classList.add("items-center");
+            document.getElementById("passInput").value = "";
+            document.getElementById("error-msg").classList.add("hidden-gate");
+        }
 
-            // Populate Table
-            const body = document.getElementById('queueBody');
-            pending.forEach(d => {
-                body.innerHTML += `<tr><td class="p-4">${d.donor_name}</td><td class="p-4">₹${d.amount}</td><td class="p-4">${d.payment_mode}</td><td class="p-4"><button onclick="verify('${d.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Approve</button></td></tr>`;
+        // --- DASHBOARD DATA ---
+        let rooms = Array.from({ length: 10 }, (_, i) => ({
+            id: i + 1, name: `Room ${i + 1}`, status: 'Available', guest: '', rent: 0, package: '', charges: []
+        }));
+        rooms.push({ id: 11, name: 'Dormitory', status: 'Available', guest: '', rent: 0, package: '', charges: [] });
+
+        let revenue = 0;
+        let expenses = 0;
+        let selectedRoomId = null;
+
+        // --- RENDER FUNCTIONS ---
+        function renderApp() {
+            renderLedger();
+            renderGrid();
+            renderPanel();
+        }
+
+        function renderLedger() {
+            document.getElementById('ui-revenue').innerText = `₹${revenue}`;
+            document.getElementById('ui-expenses').innerText = `₹${expenses}`;
+            document.getElementById('ui-net').innerText = `₹${revenue - expenses}`;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('room-grid');
+            grid.innerHTML = ''; // Clear old grid
+
+            rooms.forEach(room => {
+                const btn = document.createElement('button');
+                const isSelected = selectedRoomId === room.id;
+                
+                // Base classes
+                let classes = "p-4 rounded-lg border-2 text-left transition-all ";
+                
+                // Selection styling
+                if (isSelected) classes += "ring-4 ring-indigo-300 transform scale-105 ";
+                
+                // Status styling
+                if (room.status === 'Available') {
+                    classes += "border-green-400 bg-green-50 hover:bg-green-100";
+                } else {
+                    classes += "border-blue-400 bg-blue-50 hover:bg-blue-100";
+                }
+
+                btn.className = classes;
+                btn.onclick = () => { selectedRoomId = room.id; renderApp(); };
+
+                let innerHTML = `<div class="font-bold text-lg">${room.name}</div>
+                                 <div class="text-sm font-semibold ${room.status === 'Available' ? 'text-green-600' : 'text-blue-600'}">${room.status}</div>`;
+                
+                if (room.status === 'Occupied') {
+                    innerHTML += `<div class="mt-2 text-xs text-gray-600 truncate">👤 ${room.guest}</div>`;
+                }
+
+                btn.innerHTML = innerHTML;
+                grid.appendChild(btn);
             });
         }
 
-        async function verify(id) {
-            await supabaseClient.from('donations').update({is_verified: true}).eq('id', id);
-            location.reload();
+        function renderPanel() {
+            const panel = document.getElementById('front-desk-panel');
+            const room = rooms.find(r => r.id === selectedRoomId);
+
+            if (!room) {
+                panel.innerHTML = `<div class="text-gray-400 text-center py-8">Select a room from the grid to manage operations.</div>`;
+                return;
+            }
+
+            if (room.status === 'Available') {
+                panel.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="font-bold text-lg text-green-700 mb-2">Check-In: ${room.name}</div>
+                        <input type="text" id="checkin-guest" placeholder="Guest Name" class="w-full p-2 border rounded">
+                        <input type="number" id="checkin-rent" placeholder="Rent Collected (₹)" class="w-full p-2 border rounded">
+                        <select id="checkin-package" class="w-full p-2 border rounded">
+                            <option>Standard (Lunch & Dinner)</option>
+                            <option>Room Only (No Food)</option>
+                        </select>
+                        <button onclick="handleCheckIn()" class="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700">Confirm Booking</button>
+                    </div>
+                `;
+            } else {
+                let chargesHTML = '';
+                if (room.charges.length > 0) {
+                    let items = room.charges.map(c => `<div class="flex justify-between text-gray-600"><span>${c.item}</span><span>₹${c.amount}</span></div>`).join('');
+                    chargesHTML = `<div class="bg-gray-50 p-2 rounded text-sm mt-3"><p class="font-bold mb-1 border-b pb-1">Room Tab:</p>${items}</div>`;
+                }
+
+                panel.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-blue-100 p-3 rounded text-blue-900">
+                            <span class="font-bold text-lg">${room.name}</span><br>
+                            Guest: <strong>${room.guest}</strong><br>
+                            Package: ${room.package}
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <h3 class="font-bold text-sm mb-2 uppercase text-gray-500">Add A La Carte Charge</h3>
+                            <div class="flex space-x-2 mb-2">
+                                <input type="text" id="charge-item" placeholder="Item (e.g. Tea)" class="w-2/3 p-2 border rounded text-sm">
+                                <input type="number" id="charge-amount" placeholder="₹ Amt" class="w-1/3 p-2 border rounded text-sm">
+                            </div>
+                            <button onclick="handleAddCharge()" class="w-full bg-blue-600 text-white font-bold py-2 rounded text-sm hover:bg-blue-700">Bill to Room</button>
+                        </div>
+                        
+                        ${chargesHTML}
+                        
+                        <button onclick="handleCheckout()" class="w-full mt-4 bg-red-100 text-red-700 border border-red-300 font-bold py-2 rounded hover:bg-red-200">Complete Checkout</button>
+                    </div>
+                `;
+            }
         }
 
-        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await supabaseClient.from('expenses').insert([{
-                expense_category: document.getElementById('expCat').value,
-                amount: document.getElementById('expAmt').value,
-                description: document.getElementById('expDesc').value
-            }]);
-            alert("Expense Added"); location.reload();
-        });
+        // --- ACTION LOGIC ---
+        function handleCheckIn() {
+            const guest = document.getElementById('checkin-guest').value;
+            const rent = parseFloat(document.getElementById('checkin-rent').value);
+            const pkg = document.getElementById('checkin-package').value;
 
-        document.getElementById('cashForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('cName').value;
-            const amt = document.getElementById('cAmt').value;
-            const place = document.getElementById('cPlace').value;
-            const cat = document.getElementById('cCat').value;
-            await supabaseClient.from('donations').insert([{donor_name: name, amount: amt, donor_place: place, initiative_name: cat, payment_mode: 'Cash', is_verified: true}]);
-            window.location.href = `receipt.html?name=${name}&amt=${amt}&place=${place}&cat=${cat}&mode=Cash`;
-        });
+            if (!guest || isNaN(rent)) return alert("Please enter Guest Name and Rent Amount.");
 
-        init();
+            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
+            rooms[roomIndex] = { ...rooms[roomIndex], status: 'Occupied', guest: guest, rent: rent, package: pkg, charges: [] };
+            
+            revenue += rent;
+            renderApp();
+        }
+
+        function handleAddCharge() {
+            const item = document.getElementById('charge-item').value;
+            const amount = parseFloat(document.getElementById('charge-amount').value);
+
+            if (!item || isNaN(amount)) return;
+
+            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
+            rooms[roomIndex].charges.push({ item: item, amount: amount });
+            
+            revenue += amount;
+            renderApp();
+        }
+
+        function handleCheckout() {
+            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
+            rooms[roomIndex] = { ...rooms[roomIndex], status: 'Available', guest: '', rent: 0, package: '', charges: [] };
+            selectedRoomId = null;
+            renderApp();
+        }
+
+        function addExpense() {
+            const desc = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+
+            if (!desc || isNaN(amount)) return;
+
+            expenses += amount;
+            
+            document.getElementById('expDesc').value = '';
+            document.getElementById('expAmount').value = '';
+            renderApp();
+        }
     </script>
 </body>
 </html>
