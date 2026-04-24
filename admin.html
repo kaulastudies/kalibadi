@@ -3,272 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashram Command Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Banaras Kalibari - Admin</title>
     <style>
-        body { background-color: #f3f4f6; }
-        .hidden-gate { display: none !important; }
+        /* General styling for a clean, professional look */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* --- THE LOCK SCREEN STYLES --- */
+        #lock-screen { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #lock-screen h2 { margin-top: 0; color: #b91c1c; } /* Kalibari Red */
+
+        input[type="password"] { 
+            padding: 12px; 
+            margin: 20px 0; 
+            width: 90%; 
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button.unlock-btn { 
+            padding: 12px 24px; 
+            background-color: #b91c1c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer; 
+            width: 100%;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button.unlock-btn:hover { background-color: #991b1b; }
+
+        #error-msg { 
+            color: #e53e3e; 
+            display: none; 
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* --- THE DASHBOARD STYLES --- */
+        #admin-content { 
+            display: none; 
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            align-self: flex-start;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border-top: 4px solid #b91c1c;
+        }
+
+        button.logout-btn {
+            padding: 8px 16px;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.logout-btn:hover { background-color: #cbd5e0; }
+
+        .dashboard-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-height: 400px;
+        }
     </style>
 </head>
-<body class="text-gray-800 font-sans min-h-screen flex flex-col items-center">
+<body>
 
-    <div id="lock-screen" class="flex-1 w-full flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border-t-4 border-indigo-600">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Admin Gateway</h2>
-            <p class="text-sm text-gray-500 mb-6">Banaras Kalibari Command Center</p>
-            
-            <input type="password" id="passInput" placeholder="Enter Password" 
-                   class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            
-            <button onclick="checkPassword()" 
-                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition">
-                Unlock Dashboard
-            </button>
-            
-            <p id="error-msg" class="text-red-500 font-bold mt-4 hidden-gate">Incorrect Password. Access Denied.</p>
-        </div>
+    <div id="lock-screen">
+        <h2>Banaras Kalibari Sansthan</h2>
+        <p style="color: #718096; font-size: 14px;">Restricted Access. Enter Admin Password.</p>
+        
+        <input type="password" id="passInput" placeholder="Password">
+        <button class="unlock-btn" onclick="checkPassword()">Unlock System</button>
+        
+        <p id="error-msg">Incorrect Password. Access Denied.</p>
     </div>
 
-    <div id="admin-content" class="hidden-gate w-full max-w-7xl mx-auto p-6 space-y-6">
-        
-        <header class="bg-white p-6 rounded-xl shadow-md border-t-4 border-indigo-600 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Command Center</h1>
-                <p class="text-sm text-gray-500 mt-1">Live Operations & Financial Ledger</p>
-            </div>
-            <div class="flex flex-wrap gap-4 text-right items-center">
-                <div class="px-2">
-                    <p class="text-xs text-gray-500 uppercase font-bold">Total Revenue</p>
-                    <p class="text-xl font-bold text-green-600" id="ui-revenue">₹0</p>
-                </div>
-                <div class="px-2">
-                    <p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p>
-                    <p class="text-xl font-bold text-red-600" id="ui-expenses">₹0</p>
-                </div>
-                <div class="bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
-                    <p class="text-xs text-indigo-800 uppercase font-bold">Net Cash</p>
-                    <p class="text-2xl font-black text-indigo-700" id="ui-net">₹0</p>
-                </div>
-                <button onclick="logout()" class="ml-4 bg-gray-200 text-gray-700 px-4 py-2 rounded font-bold hover:bg-gray-300">Lock</button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold mb-4 border-b pb-2">Room Grid</h2>
-                <div id="room-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    </div>
-            </div>
-
-            <div class="space-y-6">
-                
-                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500 min-h-[300px]">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Front Desk</h2>
-                    <div id="front-desk-panel">
-                        <div class="text-gray-400 text-center py-8">Select a room from the grid to manage operations.</div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2 text-red-600">Log Ashram Expense</h2>
-                    <div class="space-y-3">
-                        <input type="text" id="expDesc" placeholder="What was bought? (e.g. Groceries)" class="w-full p-2 border rounded">
-                        <input type="number" id="expAmount" placeholder="Amount (₹)" class="w-full p-2 border rounded">
-                        <button onclick="addExpense()" class="w-full bg-red-600 text-white font-bold py-2 rounded hover:bg-red-700">Deduct from Ledger</button>
-                    </div>
-                </div>
-
-            </div>
+    <div id="admin-content">
+        <div class="dashboard-header">
+            <h1 style="margin: 0; color: #2d3748;">Admin Dashboard</h1>
+            <button class="logout-btn" onclick="logout()">Lock System</button>
         </div>
+        
+        <div class="dashboard-panel">
+            <h2 style="color: #b91c1c;">Welcome, Admin</h2>
+            <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 15px 0;">
+            
+            <p>Your database links, Google Sheets, or embedded management tools go here.</p>
+            
+            <ul style="line-height: 2;">
+                <li><a href="#" style="color: #3182ce; text-decoration: none;">Manage Members Database</a></li>
+                <li><a href="#" style="color: #3182ce; text-decoration: none;">View Event Registrations</a></li>
+                <li><a href="#" style="color: #3182ce; text-decoration: none;">Update Main Website Content</a></li>
+            </ul>
+            </div>
     </div>
 
     <script>
-        // --- SECURITY LOGIC ---
-        document.getElementById("passInput").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") checkPassword();
+        // Allow pressing "Enter" key to submit password
+        document.getElementById("passInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                checkPassword();
+            }
         });
 
         function checkPassword() {
-            if (document.getElementById("passInput").value === "kalibadi2026") {
-                document.getElementById("lock-screen").classList.add("hidden-gate");
-                document.getElementById("admin-content").classList.remove("hidden-gate");
-                document.body.classList.remove("items-center"); // Fix layout for dashboard
-                renderApp(); // Start the system
+            var pwd = document.getElementById("passInput").value;
+            
+            if (pwd === "kalibadi2026") {
+                // Hide lock screen, show dashboard
+                document.getElementById("lock-screen").style.display = "none";
+                document.getElementById("admin-content").style.display = "block";
+                document.body.style.alignItems = "flex-start"; // Move content to top
             } else {
-                document.getElementById("error-msg").classList.remove("hidden-gate");
-                document.getElementById("passInput").value = "";
+                // Show error, clear input
+                document.getElementById("error-msg").style.display = "block";
+                document.getElementById("passInput").value = ""; 
             }
         }
 
         function logout() {
-            document.getElementById("admin-content").classList.add("hidden-gate");
-            document.getElementById("lock-screen").classList.remove("hidden-gate");
-            document.body.classList.add("items-center");
-            document.getElementById("passInput").value = "";
-            document.getElementById("error-msg").classList.add("hidden-gate");
-        }
-
-        // --- DASHBOARD DATA ---
-        let rooms = Array.from({ length: 10 }, (_, i) => ({
-            id: i + 1, name: `Room ${i + 1}`, status: 'Available', guest: '', rent: 0, package: '', charges: []
-        }));
-        rooms.push({ id: 11, name: 'Dormitory', status: 'Available', guest: '', rent: 0, package: '', charges: [] });
-
-        let revenue = 0;
-        let expenses = 0;
-        let selectedRoomId = null;
-
-        // --- RENDER FUNCTIONS ---
-        function renderApp() {
-            renderLedger();
-            renderGrid();
-            renderPanel();
-        }
-
-        function renderLedger() {
-            document.getElementById('ui-revenue').innerText = `₹${revenue}`;
-            document.getElementById('ui-expenses').innerText = `₹${expenses}`;
-            document.getElementById('ui-net').innerText = `₹${revenue - expenses}`;
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('room-grid');
-            grid.innerHTML = ''; // Clear old grid
-
-            rooms.forEach(room => {
-                const btn = document.createElement('button');
-                const isSelected = selectedRoomId === room.id;
-                
-                // Base classes
-                let classes = "p-4 rounded-lg border-2 text-left transition-all ";
-                
-                // Selection styling
-                if (isSelected) classes += "ring-4 ring-indigo-300 transform scale-105 ";
-                
-                // Status styling
-                if (room.status === 'Available') {
-                    classes += "border-green-400 bg-green-50 hover:bg-green-100";
-                } else {
-                    classes += "border-blue-400 bg-blue-50 hover:bg-blue-100";
-                }
-
-                btn.className = classes;
-                btn.onclick = () => { selectedRoomId = room.id; renderApp(); };
-
-                let innerHTML = `<div class="font-bold text-lg">${room.name}</div>
-                                 <div class="text-sm font-semibold ${room.status === 'Available' ? 'text-green-600' : 'text-blue-600'}">${room.status}</div>`;
-                
-                if (room.status === 'Occupied') {
-                    innerHTML += `<div class="mt-2 text-xs text-gray-600 truncate">👤 ${room.guest}</div>`;
-                }
-
-                btn.innerHTML = innerHTML;
-                grid.appendChild(btn);
-            });
-        }
-
-        function renderPanel() {
-            const panel = document.getElementById('front-desk-panel');
-            const room = rooms.find(r => r.id === selectedRoomId);
-
-            if (!room) {
-                panel.innerHTML = `<div class="text-gray-400 text-center py-8">Select a room from the grid to manage operations.</div>`;
-                return;
-            }
-
-            if (room.status === 'Available') {
-                panel.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="font-bold text-lg text-green-700 mb-2">Check-In: ${room.name}</div>
-                        <input type="text" id="checkin-guest" placeholder="Guest Name" class="w-full p-2 border rounded">
-                        <input type="number" id="checkin-rent" placeholder="Rent Collected (₹)" class="w-full p-2 border rounded">
-                        <select id="checkin-package" class="w-full p-2 border rounded">
-                            <option>Standard (Lunch & Dinner)</option>
-                            <option>Room Only (No Food)</option>
-                        </select>
-                        <button onclick="handleCheckIn()" class="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700">Confirm Booking</button>
-                    </div>
-                `;
-            } else {
-                let chargesHTML = '';
-                if (room.charges.length > 0) {
-                    let items = room.charges.map(c => `<div class="flex justify-between text-gray-600"><span>${c.item}</span><span>₹${c.amount}</span></div>`).join('');
-                    chargesHTML = `<div class="bg-gray-50 p-2 rounded text-sm mt-3"><p class="font-bold mb-1 border-b pb-1">Room Tab:</p>${items}</div>`;
-                }
-
-                panel.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-blue-100 p-3 rounded text-blue-900">
-                            <span class="font-bold text-lg">${room.name}</span><br>
-                            Guest: <strong>${room.guest}</strong><br>
-                            Package: ${room.package}
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h3 class="font-bold text-sm mb-2 uppercase text-gray-500">Add A La Carte Charge</h3>
-                            <div class="flex space-x-2 mb-2">
-                                <input type="text" id="charge-item" placeholder="Item (e.g. Tea)" class="w-2/3 p-2 border rounded text-sm">
-                                <input type="number" id="charge-amount" placeholder="₹ Amt" class="w-1/3 p-2 border rounded text-sm">
-                            </div>
-                            <button onclick="handleAddCharge()" class="w-full bg-blue-600 text-white font-bold py-2 rounded text-sm hover:bg-blue-700">Bill to Room</button>
-                        </div>
-                        
-                        ${chargesHTML}
-                        
-                        <button onclick="handleCheckout()" class="w-full mt-4 bg-red-100 text-red-700 border border-red-300 font-bold py-2 rounded hover:bg-red-200">Complete Checkout</button>
-                    </div>
-                `;
-            }
-        }
-
-        // --- ACTION LOGIC ---
-        function handleCheckIn() {
-            const guest = document.getElementById('checkin-guest').value;
-            const rent = parseFloat(document.getElementById('checkin-rent').value);
-            const pkg = document.getElementById('checkin-package').value;
-
-            if (!guest || isNaN(rent)) return alert("Please enter Guest Name and Rent Amount.");
-
-            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
-            rooms[roomIndex] = { ...rooms[roomIndex], status: 'Occupied', guest: guest, rent: rent, package: pkg, charges: [] };
-            
-            revenue += rent;
-            renderApp();
-        }
-
-        function handleAddCharge() {
-            const item = document.getElementById('charge-item').value;
-            const amount = parseFloat(document.getElementById('charge-amount').value);
-
-            if (!item || isNaN(amount)) return;
-
-            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
-            rooms[roomIndex].charges.push({ item: item, amount: amount });
-            
-            revenue += amount;
-            renderApp();
-        }
-
-        function handleCheckout() {
-            const roomIndex = rooms.findIndex(r => r.id === selectedRoomId);
-            rooms[roomIndex] = { ...rooms[roomIndex], status: 'Available', guest: '', rent: 0, package: '', charges: [] };
-            selectedRoomId = null;
-            renderApp();
-        }
-
-        function addExpense() {
-            const desc = document.getElementById('expDesc').value;
-            const amount = parseFloat(document.getElementById('expAmount').value);
-
-            if (!desc || isNaN(amount)) return;
-
-            expenses += amount;
-            
-            document.getElementById('expDesc').value = '';
-            document.getElementById('expAmount').value = '';
-            renderApp();
-        }
-    </script>
-</body>
-</html>
