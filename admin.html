@@ -8,21 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <style>
-        /* CSS to fix the title wrapping on print */
-        @media print {
-            .no-print { display: none !important; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-            /* Target the title for single-line forcing */
-            h1.inst-title {
-                font-size: clamp(24pt, 4vw, 48pt) !important; /* Scale between 24 and 48pt */
-                white-space: nowrap !important; /* Force single line */
-                font-weight: 900 !important;
-                letter-spacing: -1pt !important; /* Tighten kerning slightly on print */
-            }
-        }
-    </style>
 </head>
 <body id="main-body" class="bg-gray-100 flex min-h-screen items-center justify-center">
 
@@ -39,10 +24,10 @@
         <p id="error-msg" class="text-red-500 font-bold mt-4 hidden">Incorrect Password. Access Denied.</p>
     </div>
 
-    <div id="admin-content" class="hidden w-full min-h-screen flex">
+    <div id="admin-content" class="hidden w-full min-h-screen">
         
-        <div class="w-64 bg-[#5A0A0A] text-white p-6 no-print">
-            <h1 class="text-xl font-bold mb-10 border-b border-red-900 pb-4 inst-title">Sansthan Admin</h1>
+        <div class="w-64 bg-[#5A0A0A] text-white p-6">
+            <h2 class="text-xl font-bold mb-10 border-b border-red-900 pb-4">Sansthan Admin</h2>
             <div class="space-y-4">
                 <button onclick="show('dashboard')" class="w-full text-left p-2 hover:bg-red-900 rounded">Dashboard</button>
                 <button onclick="show('verification')" class="w-full text-left p-2 hover:bg-red-900 rounded">Verification Queue</button>
@@ -56,22 +41,21 @@
         <div class="flex-1 p-8">
             <div id="dashboard" class="page">
                 <h1 class="text-2xl font-bold mb-6">Financial Overview</h1>
-                <div class="grid grid-cols-3 gap-6 mb-8 no-print">
+                <div class="grid grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500"><p class="text-xs text-gray-500 uppercase font-bold">Verified Income</p><h3 id="statReceived" class="text-2xl font-bold text-green-600">₹0</h3></div>
                     <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500"><p class="text-xs text-gray-500 uppercase font-bold">Pending Approval</p><h3 id="statPending" class="text-2xl font-bold text-yellow-600">₹0</h3></div>
                     <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500"><p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p><h3 id="statExpenses" class="text-2xl font-bold text-red-600">₹0</h3></div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow w-96 no-print"><canvas id="myChart"></canvas></div>
             </div>
 
-            <div id="verification" class="page hidden no-print">
+            <div id="verification" class="page hidden">
                 <h1 class="text-2xl font-bold mb-6">Pending Verifications</h1>
                 <div class="bg-white rounded-lg shadow overflow-hidden">
                     <table class="w-full text-left"><thead class="bg-gray-100"><tr><th class="p-4">Donor</th><th class="p-4">Amount</th><th class="p-4">Mode</th><th class="p-4">Action</th></tr></thead><tbody id="queueBody"></tbody></table>
                 </div>
             </div>
 
-            <div id="cashEntry" class="page hidden no-print">
+            <div id="cashEntry" class="page hidden">
                 <h1 class="text-2xl font-bold mb-6">Record Manual Cash</h1>
                 <form id="cashForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
                     <input type="text" id="cName" placeholder="Donor Name" class="w-full p-2 border rounded" required>
@@ -88,7 +72,7 @@
                 </form>
             </div>
 
-            <div id="expenses" class="page hidden no-print">
+            <div id="expenses" class="page hidden">
                 <h1 class="text-2xl font-bold mb-6">Add New Expense</h1>
                 <form id="expenseForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
                     <select id="expCat" class="w-full p-2 border rounded">
@@ -103,21 +87,17 @@
     </div>
 
     <script>
-        // 1. Password Lock System
         document.getElementById("passInput").addEventListener("keypress", function(e) {
             if (e.key === "Enter") checkPassword();
         });
 
         function checkPassword() {
             var pwd = document.getElementById("passInput").value;
-            // Checks for both formats
             if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {
                 document.getElementById("lock-screen").classList.add("hidden");
                 document.getElementById("admin-content").classList.remove("hidden");
                 document.getElementById("admin-content").classList.add("flex");
                 document.getElementById("main-body").classList.remove("items-center", "justify-center");
-                
-                // Initialize Supabase Data only after successful login
                 init(); 
             } else {
                 document.getElementById("error-msg").classList.remove("hidden");
@@ -125,13 +105,11 @@
             }
         }
 
-        // 2. Dashboard Navigation
         function show(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // 3. Supabase Data Fetching
         async function init() {
             const { data: donations } = await supabaseClient.from('donations').select('*');
             const { data: expenses } = await supabaseClient.from('expenses').select('*');
@@ -151,13 +129,11 @@
             });
         }
 
-        // 4. Verification Action
         async function verify(id) {
             await supabaseClient.from('donations').update({is_verified: true}).eq('id', id);
             location.reload();
         }
 
-        // 5. Expense Form Submit
         document.getElementById('expenseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await supabaseClient.from('expenses').insert([{
@@ -169,27 +145,25 @@
             location.reload();
         });
 
-        // 6. UPGRADED Manual Cash Receipt Form (with PAN support)
         document.getElementById('cashForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('cName').value;
             const amt = document.getElementById('cAmt').value;
             const place = document.getElementById('cPlace').value;
             const cat = document.getElementById('cCat').value;
-            const pan = document.getElementById('cPan').value.toUpperCase(); // Capture PAN
+            const pan = document.getElementById('cPan').value.toUpperCase();
 
-            // Insert core data into Supabase
             await supabaseClient.from('donations').insert([{
                 donor_name: name, 
                 amount: amt, 
                 donor_place: place, 
                 initiative_name: cat, 
                 payment_mode: 'Cash', 
-                is_verified: true
+                is_verified: true,
+                donor_pan: pan
             }]);
             
-            // Redirect to the new professional receipt, securely encoding all variables including PAN
-            //window.location.href = `receipt.html?name=${encodeURIComponent(name)}&amt=${amt}&place=${encodeURIComponent(place)}&cat=${encodeURIComponent(cat)}&mode=Cash&pan=${encodeURIComponent(pan)}`;
+            window.location.href = `receipt.html?name=${encodeURIComponent(name)}&amt=${amt}&place=${encodeURIComponent(place)}&cat=${encodeURIComponent(cat)}&mode=Cash&pan=${encodeURIComponent(pan)}`;
         });
     </script>
 </body>
