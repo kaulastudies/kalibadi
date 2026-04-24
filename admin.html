@@ -3,161 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banaras Kalibari - Admin</title>
-    <style>
-        /* General styling for a clean, professional look */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
-
-        /* --- THE LOCK SCREEN STYLES --- */
-        #lock-screen { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        #lock-screen h2 { margin-top: 0; color: #b91c1c; } /* Kalibari Red */
-
-        input[type="password"] { 
-            padding: 12px; 
-            margin: 20px 0; 
-            width: 90%; 
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button.unlock-btn { 
-            padding: 12px 24px; 
-            background-color: #b91c1c; 
-            color: white; 
-            border: none; 
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer; 
-            width: 100%;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-
-        button.unlock-btn:hover { background-color: #991b1b; }
-
-        #error-msg { 
-            color: #e53e3e; 
-            display: none; 
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        /* --- THE DASHBOARD STYLES --- */
-        #admin-content { 
-            display: none; 
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            align-self: flex-start;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border-top: 4px solid #b91c1c;
-        }
-
-        button.logout-btn {
-            padding: 8px 16px;
-            background-color: #e2e8f0;
-            color: #4a5568;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        button.logout-btn:hover { background-color: #cbd5e0; }
-
-        .dashboard-panel {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            min-height: 400px;
-        }
-    </style>
+    <title>Admin Audit Dashboard | Banaras Kali Bari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
 </head>
-<body>
+<body id="main-body" class="bg-gray-100 flex min-h-screen items-center justify-center">
 
-    <div id="lock-screen">
-        <h2>Banaras Kalibari Sansthan</h2>
-        <p style="color: #718096; font-size: 14px;">Restricted Access. Enter Admin Password.</p>
+    <div id="lock-screen" class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border-t-4 border-[#5A0A0A]">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Sansthan Admin Gateway</h2>
+        <p class="text-sm text-gray-500 mb-6">Restricted Access</p>
         
-        <input type="password" id="passInput" placeholder="Password">
-        <button class="unlock-btn" onclick="checkPassword()">Unlock System</button>
+        <input type="password" id="passInput" placeholder="Enter Password" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-900">
         
-        <p id="error-msg">Incorrect Password. Access Denied.</p>
+        <button onclick="checkPassword()" class="w-full bg-[#5A0A0A] text-white font-bold py-3 rounded-lg hover:bg-red-900 transition">
+            Unlock Dashboard
+        </button>
+        
+        <p id="error-msg" class="text-red-500 font-bold mt-4 hidden">Incorrect Password. Access Denied.</p>
     </div>
 
-    <div id="admin-content">
-        <div class="dashboard-header">
-            <h1 style="margin: 0; color: #2d3748;">Admin Dashboard</h1>
-            <button class="logout-btn" onclick="logout()">Lock System</button>
-        </div>
+    <div id="admin-content" class="hidden w-full min-h-screen">
         
-        <div class="dashboard-panel">
-            <h2 style="color: #b91c1c;">Welcome, Admin</h2>
-            <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 15px 0;">
-            
-            <p>Your database links, Google Sheets, or embedded management tools go here.</p>
-            
-            <ul style="line-height: 2;">
-                <li><a href="#" style="color: #3182ce; text-decoration: none;">Manage Members Database</a></li>
-                <li><a href="#" style="color: #3182ce; text-decoration: none;">View Event Registrations</a></li>
-                <li><a href="#" style="color: #3182ce; text-decoration: none;">Update Main Website Content</a></li>
-            </ul>
+        <div class="w-64 bg-[#5A0A0A] text-white p-6">
+            <h2 class="text-xl font-bold mb-10 border-b border-red-900 pb-4">Sansthan Admin</h2>
+            <div class="space-y-4">
+                <button onclick="show('dashboard')" class="w-full text-left p-2 hover:bg-red-900 rounded">Dashboard</button>
+                <button onclick="show('verification')" class="w-full text-left p-2 hover:bg-red-900 rounded">Verification Queue</button>
+                <button onclick="show('cashEntry')" class="w-full text-left p-2 hover:bg-red-900 rounded">Manual Cash Entry</button>
+                <button onclick="show('expenses')" class="w-full text-left p-2 hover:bg-red-900 rounded">Add Expense</button>
+                <hr class="border-red-900 my-4">
+                <button onclick="location.href='index.html'" class="w-full text-left p-2 text-red-300">Logout</button>
             </div>
+        </div>
+
+        <div class="flex-1 p-8">
+            <div id="dashboard" class="page">
+                <h1 class="text-2xl font-bold mb-6">Financial Overview</h1>
+                <div class="grid grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500"><p class="text-xs text-gray-500 uppercase font-bold">Verified Income</p><h3 id="statReceived" class="text-2xl font-bold text-green-600">₹0</h3></div>
+                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500"><p class="text-xs text-gray-500 uppercase font-bold">Pending Approval</p><h3 id="statPending" class="text-2xl font-bold text-yellow-600">₹0</h3></div>
+                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500"><p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p><h3 id="statExpenses" class="text-2xl font-bold text-red-600">₹0</h3></div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow w-96"><canvas id="myChart"></canvas></div>
+            </div>
+
+            <div id="verification" class="page hidden">
+                <h1 class="text-2xl font-bold mb-6">Pending Verifications</h1>
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="w-full text-left"><thead class="bg-gray-100"><tr><th class="p-4">Donor</th><th class="p-4">Amount</th><th class="p-4">Mode</th><th class="p-4">Action</th></tr></thead><tbody id="queueBody"></tbody></table>
+                </div>
+            </div>
+
+            <div id="cashEntry" class="page hidden">
+                <h1 class="text-2xl font-bold mb-6">Record Manual Cash</h1>
+                <form id="cashForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
+                    <input type="text" id="cName" placeholder="Donor Name" class="w-full p-2 border rounded" required>
+                    <input type="text" id="cPlace" placeholder="Place" class="w-full p-2 border rounded" required>
+                    <input type="number" id="cAmt" placeholder="Amount" class="w-full p-2 border rounded" required>
+                    <select id="cCat" class="w-full p-2 border rounded"><option>Gurukul</option><option>Gaushala</option><option>Kanyadaan</option><option>Temple</option></select>
+                    <button type="submit" class="w-full bg-green-700 text-white p-2 rounded">Save & Print Receipt</button>
+                </form>
+            </div>
+
+            <div id="expenses" class="page hidden">
+                <h1 class="text-2xl font-bold mb-6">Add New Expense</h1>
+                <form id="expenseForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">
+                    <select id="expCat" class="w-full p-2 border rounded">
+                        <option value="Gurukul">Gurukul</option><option value="Gaushala">Gaushala</option><option value="Kanyadaan">Kanyadaan</option><option value="Temple">Temple Renovation</option>
+                    </select>
+                    <input type="number" id="expAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>
+                    <input type="text" id="expDesc" placeholder="Description" class="w-full p-2 border rounded">
+                    <button type="submit" class="w-full bg-[#5A0A0A] text-white p-2 rounded">Save Expense</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Allow pressing "Enter" key to submit password
-        document.getElementById("passInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                checkPassword();
-            }
+        // 1. Password Lock System
+        document.getElementById("passInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") checkPassword();
         });
 
         function checkPassword() {
             var pwd = document.getElementById("passInput").value;
-            
-            if (pwd === "kalibadi2026") {
-                // Hide lock screen, show dashboard
-                document.getElementById("lock-screen").style.display = "none";
-                document.getElementById("admin-content").style.display = "block";
-                document.body.style.alignItems = "flex-start"; // Move content to top
+            // Checks for both formats you used
+            if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {
+                // Remove lock screen
+                document.getElementById("lock-screen").classList.add("hidden");
+                // Show dashboard and fix layout
+                document.getElementById("admin-content").classList.remove("hidden");
+                document.getElementById("admin-content").classList.add("flex");
+                document.getElementById("main-body").classList.remove("items-center", "justify-center");
+                
+                // Initialize Supabase Data only after successful login
+                init(); 
             } else {
-                // Show error, clear input
-                document.getElementById("error-msg").style.display = "block";
-                document.getElementById("passInput").value = ""; 
+                document.getElementById("error-msg").classList.remove("hidden");
+                document.getElementById("passInput").value = "";
             }
         }
 
-        function logout() {
+        // 2. Original Dashboard Navigation
+        function show(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // 3. Original Supabase Data Fetching
+        async function init() {
+            // Fetch Donations & Expenses
+            const { data: donations } = await supabaseClient.from('donations').select('*');
+            const { data: expenses } = await supabaseClient.from('expenses').select('*');
+            
+            const verified = donations.filter(d => d.is_verified);
+            const pending = donations.filter(d => !d.is_verified);
+            const totalExp = expenses.reduce((a,b) => a + Number(b.amount), 0);
+            
+            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
+            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString();
+            document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString();
+
+            // Populate Table
+            const body = document.getElementById('queueBody');
+            body.innerHTML = ''; // Clear loading state
+            pending.forEach(d => {
+                body.innerHTML += `<tr><td class="p-4">${d.donor_name}</td><td class="p-4">₹${d.amount}</td><td class="p-4">${d.payment_mode}</td><td class="p-4"><button onclick="verify('${d.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Approve</button></td></tr>`;
+            });
+        }
+
+        // 4. Original Verification Action
+        async function verify(id) {
+            await supabaseClient.from('donations').update({is_verified: true}).eq('id', id);
+            location.reload();
+        }
+
+        // 5. Original Expense Form Submit
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await supabaseClient.from('expenses').insert([{
+                expense_category: document.getElementById('expCat').value,
+                amount: document.getElementById('expAmt').value,
+                description: document.getElementById('expDesc').value
+            }]);
+            alert("Expense Added"); 
+            location.reload();
+        });
+
+        // 6. Original Manual Cash Receipt Form
+        document.getElementById('cashForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('cName').value;
+            const amt = document.getElementById('cAmt').value;
+            const place = document.getElementById('cPlace').value;
+            const cat = document.getElementById('cCat').value;
+            await supabaseClient.from('donations').insert([{donor_name: name, amount: amt, donor_place: place, initiative_name: cat, payment_mode: 'Cash', is_verified: true}]);
+            window.location.href = `receipt.html?name=${name}&amt=${amt}&place=${place}&cat=${cat}&mode=Cash`;
+        });
+    </script>
+</body>
+</html>
