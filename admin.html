@@ -124,6 +124,7 @@
         function checkPassword() {            
             var pwd = document.getElementById("passInput").value;            
             if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {                
+                // Save the session memory so refresh works
                 sessionStorage.setItem('bkb_admin_auth', 'true');
                 unlockDashboard();             
             } else {                
@@ -141,6 +142,7 @@
         }
 
         function logoutAdmin() {
+            // Wipe the session memory and go to home page
             sessionStorage.removeItem('bkb_admin_auth');
             window.location.href = 'index.html'; 
         }
@@ -149,7 +151,7 @@
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));            
             document.getElementById(id).classList.remove('hidden');        
             
-            // NEW FIX: Force a data refresh every time a sidebar button is clicked
+            // Force a data refresh every time a sidebar button is clicked
             if (sessionStorage.getItem('bkb_admin_auth') === 'true') {
                 init();
             }
@@ -158,22 +160,26 @@
         // --- 2. DATA FETCHING & UI GENERATION ---
 
         async function init() {            
+            // Fetch data safely
             const { data: donations, error: donError } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });            
             const { data: expenses, error: expError } = await supabaseClient.from('expenses').select('*');                        
             
+            // If the database fails to respond, stop and warn the user
             if (!donations) {
                 console.error("Database Error:", donError);
                 return;
             }
 
-            // NEW FIX: Bulletproof boolean check (catches 'true', true, etc.)
+            // Identify verified vs pending (Bulletproof boolean check)
             const verified = donations.filter(d => d.is_verified == true || d.is_verified === "true");            
             const pending = donations.filter(d => !d.is_verified || d.is_verified === "false");            
             
+            // Bulletproof Math (Calculates even if a blank field exists)
             const totalExp = expenses ? expenses.reduce((a,b) => a + (Number(b.amount) || 0), 0) : 0;                        
             const totalReceived = verified.reduce((a,b) => a + (Number(b.amount) || 0), 0);
             const totalPending = pending.reduce((a,b) => a + (Number(b.amount) || 0), 0);
             
+            // Update Dashboard UI
             document.getElementById('statReceived').innerText = "₹" + totalReceived.toLocaleString('en-IN');            
             document.getElementById('statPending').innerText = "₹" + totalPending.toLocaleString('en-IN');            
             document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString('en-IN');
@@ -181,19 +187,24 @@
             const body = document.getElementById('queueBody');            
             body.innerHTML = '';             
             
+            // Build the Queue
             pending.forEach(d => {
+                // Format the Date and Time
                 const dateObj = new Date(d.created_at);
                 const formattedDate = dateObj.toLocaleString('en-IN', {
                     day: '2-digit', month: 'short', year: 'numeric',
                     hour: '2-digit', minute: '2-digit', hour12: true
                 });
 
+                // Handle missing transaction numbers
                 const refNo = d.transaction_number ? d.transaction_number : '<span class="text-gray-400 italic">N/A</span>';
                 
+                // Add screenshot link if it exists
                 const viewImgBtn = d.screenshot_url 
                     ? `<a href="${d.screenshot_url}" target="_blank" class="text-blue-600 hover:underline text-xs block mb-2">View Receipt</a>`
                     : `<span class="text-gray-400 text-xs block mb-2">No Image</span>`;
 
+                // Build the row
                 body.innerHTML += `
                 <tr class="border-b hover:bg-gray-50 transition-colors">
                     <td class="p-4 text-sm text-gray-600">${formattedDate}</td>
@@ -209,7 +220,7 @@
             });        
         }
 
-        // NEW FIX: Aggressively refresh if the user clicks the browser "Back" button
+        // Force refresh if user clicks "Back" button from the receipt page
         window.addEventListener('pageshow', (event) => {
             if (sessionStorage.getItem('bkb_admin_auth') === 'true') {
                 init(); 
@@ -220,24 +231,29 @@
 
         async function verify(event, id) {            
             try {
+                // Show the user something is happening
                 const button = event.target;
                 button.innerText = "SAVING...";
                 button.disabled = true;
                 button.classList.replace('bg-[#5A0A0A]', 'bg-gray-400');
                 button.classList.replace('hover:bg-red-900', 'hover:bg-gray-400');
 
+                // Send the update to Supabase
                 const { error } = await supabaseClient
                     .from('donations')
                     .update({ is_verified: true })
                     .eq('id', id);
 
                 if (error) throw error;
+
+                // Quietly refresh the data WITHOUT reloading the page
                 await init(); 
 
             } catch (error) {
                 console.error("Verification failed:", error);
                 alert("Failed to verify. Ensure Supabase UPDATE policy is enabled.");
                 
+                // Restore the button if it failed
                 event.target.innerText = "APPROVE";
                 event.target.disabled = false;
                 event.target.classList.replace('bg-gray-400', 'bg-[#5A0A0A]');
@@ -249,20 +265,36 @@
 
         document.getElementById('expenseForm').addEventListener('submit', async (e) => {            
             e.preventDefault();            
-            await supabaseClient.from('expenses').insert([{                
+            
+            // Change button to show saving status
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "SAVING...";
+            submitBtn.disabled = true;
+
+            const { error } = await supabaseClient.from('expenses').insert([{                
                 expense_category: document.getElementById('expCat').value,                
                 amount: document.getElementById('expAmt').value,                
                 description: document.getElementById('expDesc').value            
             }]);            
-            alert("Expense Added Successfully");             
-            document.getElementById('expenseForm').reset();
-            init(); 
+            
+            if (error) {
+                alert("Error saving expense: " + error.message);
+                console.error(error);
+            } else {
+                alert("Expense Added Successfully");             
+                document.getElementById('expenseForm').reset();
+                init(); // Update stats without reload
+            }
+
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
         });
 
-      document.getElementById('cashForm').addEventListener('submit', async (e) => {            
+        document.getElementById('cashForm').addEventListener('submit', async (e) => {            
             e.preventDefault();            
             
-            // Change button to show it is working
+            // Change button to show saving status
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.innerText = "SAVING TO DATABASE...";
             submitBtn.disabled = true;
@@ -282,7 +314,7 @@
             const generatedReceiptNo = `BKS/${year}-${nextYear}/${monthDate}-${randomHex}`;            
             const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-            // SAVE TO SUPABASE (WITH ERROR CATCHING)
+            // SAVE TO SUPABASE (WITH ERROR CATCHING & REQUIRED PHONE FIELD)
             const { error } = await supabaseClient.from('donations').insert([{                
                 donor_name: name,                 
                 amount: amt,                 
@@ -292,16 +324,16 @@
                 is_verified: true,                
                 donor_pan: pan,                
                 receipt_no: generatedReceiptNo,
-                donor_phone: 'Not Provided' // <-- THE MISSING PIECE! Satisfies the 'NOT NULL' rule
+                donor_phone: 'Not Provided' 
             }]);                        
             
-            // IF SUPABASE REJECTS IT, STOP EVERYTHING AND ALERT THE ADMIN
+            // IF SUPABASE REJECTS IT, STOP EVERYTHING
             if (error) {
                 alert("Error saving cash entry: " + error.message);
                 console.error(error);
                 submitBtn.innerText = "Save & Print Receipt";
                 submitBtn.disabled = false;
-                return; // Stops the receipt from generating
+                return; 
             }
 
             // IF SUCCESSFUL, STORE SECURELY IN SESSION            
@@ -312,15 +344,6 @@
             sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));                        
             
             // CLEAN REDIRECT            
-            window.location.href = 'receipt.html';        
-        });                        
-            
-            const secureReceiptData = {                
-                name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,                
-                receiptNo: generatedReceiptNo, date: formattedDate            
-            };            
-            sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));                        
-            
             window.location.href = 'receipt.html';        
         });    
     </script>
