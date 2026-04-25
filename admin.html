@@ -124,7 +124,6 @@
         function checkPassword() {            
             var pwd = document.getElementById("passInput").value;            
             if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {                
-                // Save the session memory so refresh works
                 sessionStorage.setItem('bkb_admin_auth', 'true');
                 unlockDashboard();             
             } else {                
@@ -142,7 +141,6 @@
         }
 
         function logoutAdmin() {
-            // Wipe the session memory and go to home page
             sessionStorage.removeItem('bkb_admin_auth');
             window.location.href = 'index.html'; 
         }
@@ -150,31 +148,32 @@
         function show(id) {            
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));            
             document.getElementById(id).classList.remove('hidden');        
+            
+            // NEW FIX: Force a data refresh every time a sidebar button is clicked
+            if (sessionStorage.getItem('bkb_admin_auth') === 'true') {
+                init();
+            }
         }
 
         // --- 2. DATA FETCHING & UI GENERATION ---
 
         async function init() {            
-            // Fetch data safely
             const { data: donations, error: donError } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });            
             const { data: expenses, error: expError } = await supabaseClient.from('expenses').select('*');                        
             
-            // If the database fails to respond, stop and warn the user
             if (!donations) {
                 console.error("Database Error:", donError);
                 return;
             }
 
-            // Identify verified vs pending
-            const verified = donations.filter(d => d.is_verified === true);            
-            const pending = donations.filter(d => d.is_verified === false || d.is_verified === null);            
+            // NEW FIX: Bulletproof boolean check (catches 'true', true, etc.)
+            const verified = donations.filter(d => d.is_verified == true || d.is_verified === "true");            
+            const pending = donations.filter(d => !d.is_verified || d.is_verified === "false");            
             
-            // Bulletproof Math (Calculates even if a blank field exists)
             const totalExp = expenses ? expenses.reduce((a,b) => a + (Number(b.amount) || 0), 0) : 0;                        
             const totalReceived = verified.reduce((a,b) => a + (Number(b.amount) || 0), 0);
             const totalPending = pending.reduce((a,b) => a + (Number(b.amount) || 0), 0);
             
-            // Update Dashboard UI
             document.getElementById('statReceived').innerText = "₹" + totalReceived.toLocaleString('en-IN');            
             document.getElementById('statPending').innerText = "₹" + totalPending.toLocaleString('en-IN');            
             document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString('en-IN');
@@ -182,24 +181,19 @@
             const body = document.getElementById('queueBody');            
             body.innerHTML = '';             
             
-            // Build the Queue
             pending.forEach(d => {
-                // Format the Date and Time
                 const dateObj = new Date(d.created_at);
                 const formattedDate = dateObj.toLocaleString('en-IN', {
                     day: '2-digit', month: 'short', year: 'numeric',
                     hour: '2-digit', minute: '2-digit', hour12: true
                 });
 
-                // Handle missing transaction numbers
                 const refNo = d.transaction_number ? d.transaction_number : '<span class="text-gray-400 italic">N/A</span>';
                 
-                // Add screenshot link if it exists
                 const viewImgBtn = d.screenshot_url 
                     ? `<a href="${d.screenshot_url}" target="_blank" class="text-blue-600 hover:underline text-xs block mb-2">View Receipt</a>`
                     : `<span class="text-gray-400 text-xs block mb-2">No Image</span>`;
 
-                // Build the row
                 body.innerHTML += `
                 <tr class="border-b hover:bg-gray-50 transition-colors">
                     <td class="p-4 text-sm text-gray-600">${formattedDate}</td>
@@ -215,9 +209,9 @@
             });        
         }
 
-        // Force refresh if user clicks "Back" button from the receipt page
+        // NEW FIX: Aggressively refresh if the user clicks the browser "Back" button
         window.addEventListener('pageshow', (event) => {
-            if (event.persisted && sessionStorage.getItem('bkb_admin_auth') === 'true') {
+            if (sessionStorage.getItem('bkb_admin_auth') === 'true') {
                 init(); 
             }
         });
@@ -226,30 +220,24 @@
 
         async function verify(event, id) {            
             try {
-                // Show the user something is happening
                 const button = event.target;
-                const originalText = button.innerText;
                 button.innerText = "SAVING...";
                 button.disabled = true;
                 button.classList.replace('bg-[#5A0A0A]', 'bg-gray-400');
                 button.classList.replace('hover:bg-red-900', 'hover:bg-gray-400');
 
-                // Send the update to Supabase
                 const { error } = await supabaseClient
                     .from('donations')
                     .update({ is_verified: true })
                     .eq('id', id);
 
                 if (error) throw error;
-
-                // Quietly refresh the data WITHOUT reloading the page
                 await init(); 
 
             } catch (error) {
                 console.error("Verification failed:", error);
-                alert("Failed to verify. Please check your connection and try again. Ensure Supabase UPDATE policy is enabled.");
+                alert("Failed to verify. Ensure Supabase UPDATE policy is enabled.");
                 
-                // Restore the button if it failed
                 event.target.innerText = "APPROVE";
                 event.target.disabled = false;
                 event.target.classList.replace('bg-gray-400', 'bg-[#5A0A0A]');
@@ -268,7 +256,7 @@
             }]);            
             alert("Expense Added Successfully");             
             document.getElementById('expenseForm').reset();
-            init(); // Update stats without reload
+            init(); 
         });
 
         document.getElementById('cashForm').addEventListener('submit', async (e) => {            
@@ -279,7 +267,6 @@
             const cat = document.getElementById('cCat').value;            
             const pan = document.getElementById('cPan').value.toUpperCase();
 
-            // GENERATE RECEIPT NUMBER SECURELY            
             const dateObj = new Date();            
             const year = dateObj.getFullYear().toString().slice(-2);            
             const nextYear = (parseInt(year) + 1).toString();            
@@ -288,7 +275,6 @@
             const generatedReceiptNo = `BKS/${year}-${nextYear}/${monthDate}-${randomHex}`;            
             const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-            // SAVE TO SUPABASE            
             await supabaseClient.from('donations').insert([{                
                 donor_name: name,                 
                 amount: amt,                 
@@ -300,14 +286,12 @@
                 receipt_no: generatedReceiptNo            
             }]);                        
             
-            // STORE SECURELY IN SESSION (Invisible to URL)            
             const secureReceiptData = {                
                 name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,                
                 receiptNo: generatedReceiptNo, date: formattedDate            
             };            
             sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));                        
             
-            // CLEAN REDIRECT            
             window.location.href = 'receipt.html';        
         });    
     </script>
