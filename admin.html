@@ -259,14 +259,21 @@
             init(); 
         });
 
-        document.getElementById('cashForm').addEventListener('submit', async (e) => {            
+      document.getElementById('cashForm').addEventListener('submit', async (e) => {            
             e.preventDefault();            
+            
+            // Change button to show it is working
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.innerText = "SAVING TO DATABASE...";
+            submitBtn.disabled = true;
+
             const name = document.getElementById('cName').value;            
             const amt = document.getElementById('cAmt').value;            
             const place = document.getElementById('cPlace').value;            
             const cat = document.getElementById('cCat').value;            
             const pan = document.getElementById('cPan').value.toUpperCase();
 
+            // GENERATE RECEIPT NUMBER SECURELY            
             const dateObj = new Date();            
             const year = dateObj.getFullYear().toString().slice(-2);            
             const nextYear = (parseInt(year) + 1).toString();            
@@ -275,7 +282,8 @@
             const generatedReceiptNo = `BKS/${year}-${nextYear}/${monthDate}-${randomHex}`;            
             const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-            await supabaseClient.from('donations').insert([{                
+            // SAVE TO SUPABASE (WITH ERROR CATCHING)
+            const { error } = await supabaseClient.from('donations').insert([{                
                 donor_name: name,                 
                 amount: amt,                 
                 donor_place: place,                 
@@ -283,8 +291,29 @@
                 payment_mode: 'Cash',                 
                 is_verified: true,                
                 donor_pan: pan,                
-                receipt_no: generatedReceiptNo            
+                receipt_no: generatedReceiptNo,
+                donor_phone: 'Not Provided' // <-- THE MISSING PIECE! Satisfies the 'NOT NULL' rule
             }]);                        
+            
+            // IF SUPABASE REJECTS IT, STOP EVERYTHING AND ALERT THE ADMIN
+            if (error) {
+                alert("Error saving cash entry: " + error.message);
+                console.error(error);
+                submitBtn.innerText = "Save & Print Receipt";
+                submitBtn.disabled = false;
+                return; // Stops the receipt from generating
+            }
+
+            // IF SUCCESSFUL, STORE SECURELY IN SESSION            
+            const secureReceiptData = {                
+                name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,                
+                receiptNo: generatedReceiptNo, date: formattedDate            
+            };            
+            sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));                        
+            
+            // CLEAN REDIRECT            
+            window.location.href = 'receipt.html';        
+        });                        
             
             const secureReceiptData = {                
                 name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,                
