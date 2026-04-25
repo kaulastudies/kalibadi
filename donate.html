@@ -1,258 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>    
-    <meta charset="UTF-8">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <title>Admin Audit Dashboard | Banaras Kali Bari</title>    
-    <script src="https://cdn.tailwindcss.com"></script>    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate & Support | Banaras Kali Bari Sansthan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lora', serif; background-color: #FDFBF9; }
+        .heading-font { font-family: 'Cinzel', serif; }
+        .text-brand-orange { color: #E67E22; }
+        .bg-brand-orange { background-color: #E67E22; }
+        .bg-brand-green { background-color: #2C3E2D; }
+        .dropdown-menu { display: none; }
+        .dropdown-wrapper:hover .dropdown-menu { display: block; }
+    </style>
 </head>
-<body id="main-body" class="bg-gray-100 flex min-h-screen items-center justify-center">
-
-    <div id="lock-screen" class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border-t-4 border-[#5A0A0A]">        
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Sansthan Admin Gateway</h2>        
-        <p class="text-sm text-gray-500 mb-6">Restricted Access</p>        
-        <input type="password" id="passInput" placeholder="Enter Password" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-900">        
-        <button onclick="checkPassword()" class="w-full bg-[#5A0A0A] text-white font-bold py-3 rounded-lg hover:bg-red-900 transition">Unlock Dashboard</button>        
-        <p id="error-msg" class="text-red-500 font-bold mt-4 hidden">Incorrect Password. Access Denied.</p>    
-    </div>
-
-    <div id="admin-content" class="hidden w-full min-h-screen">                
-        <div class="w-64 bg-[#5A0A0A] text-white p-6">            
-            <h2 class="text-xl font-bold mb-10 border-b border-red-900 pb-4">Sansthan Admin</h2>            
-            <div class="space-y-4">                
-                <button onclick="show('dashboard')" class="w-full text-left p-2 hover:bg-red-900 rounded">Dashboard</button>                
-                <button onclick="show('verification')" class="w-full text-left p-2 hover:bg-red-900 rounded">Verification Queue</button>                
-                <button onclick="show('cashEntry')" class="w-full text-left p-2 hover:bg-red-900 rounded">Manual Cash Entry</button>                
-                <button onclick="show('expenses')" class="w-full text-left p-2 hover:bg-red-900 rounded">Add Expense</button>                
-                <hr class="border-red-900 my-4">                
-                <button onclick="location.href='index.html'" class="w-full text-left p-2 text-red-300">Logout</button>            
-            </div>        
+<body class="flex flex-col min-h-screen text-gray-800">
+    <nav class="bg-white shadow-sm w-full z-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-10 h-10 rounded-full border-2 border-[#E67E22] flex items-center justify-center text-[#E67E22]">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <h1 class="heading-font text-lg md:text-xl font-bold text-gray-900">Banaras Kali Bari Sansthan</h1>
+                </div>
+                <div class="hidden lg:flex space-x-8 items-center">
+                    <a href="index.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Home</a>
+                    <a href="about.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">About</a>
+                    <div class="relative dropdown-wrapper pb-2 pt-2">
+                        <button class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors flex items-center">Our Initiatives <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                        <div class="dropdown-menu absolute left-0 top-full mt-0 w-56 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                            <a href="gurukul.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Shankaracharya Gurukul</a>
+                            <a href="gaushala.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Maa Annapurna Gaushala</a>
+                            <a href="kanyadaan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Kanyadaan & Women</a>
+                            <a href="temple-renovation.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Temple Renovation</a>
+                            <a href="nithyannadan.html" class="block px-5 py-2 text-sm text-gray-700 hover:bg-brand-orange hover:text-white">Nithya Annadana</a>
+                        </div>
+                    </div>
+                    <a href="csr.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">CSR & Transparency</a>
+                    <a href="contact.html" class="text-gray-600 hover:text-brand-orange font-medium text-sm transition-colors">Contact</a>
+                    <a href="donate.html" class="px-6 py-2.5 bg-brand-orange text-white rounded-full font-bold text-sm shadow-md hover:bg-[#D68910] transition-colors">Donate Now</a>
+                </div>
+            </div>
         </div>
-
-        <div class="flex-1 p-8">            
-            
-            <div id="dashboard" class="page">                
-                <h1 class="text-2xl font-bold mb-6">Financial Overview</h1>                
-                <div class="grid grid-cols-3 gap-6 mb-8">                    
-                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
-                        <p class="text-xs text-gray-500 uppercase font-bold">Verified Income</p>
-                        <h3 id="statReceived" class="text-2xl font-bold text-green-600">₹0</h3>
-                    </div>                    
-                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
-                        <p class="text-xs text-gray-500 uppercase font-bold">Pending Approval</p>
-                        <h3 id="statPending" class="text-2xl font-bold text-yellow-600">₹0</h3>
-                    </div>                    
-                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500">
-                        <p class="text-xs text-gray-500 uppercase font-bold">Total Expenses</p>
-                        <h3 id="statExpenses" class="text-2xl font-bold text-red-600">₹0</h3>
-                    </div>                
-                </div>            
+    </nav>
+    <header class="bg-[#FFF0E6] py-12 text-center border-b border-[#FFDCA8]">
+        <h1 class="heading-font text-4xl font-bold text-[#5A0A0A] mb-2">Support Our Mission</h1>
+        <p class="text-gray-600">Scan the QR code, complete your contribution, and upload the screenshot below.</p>
+    </header>
+    <main class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-16 grid lg:grid-cols-2 gap-16 items-start">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl border border-gray-100 flex flex-col items-center text-center">
+            <h2 class="heading-font text-2xl font-bold text-gray-900 mb-6">Scan to Donate (0% Fee)</h2>
+            <img src="qr-code.jpg" alt="YES Bank QR Code" class="w-full max-w-[350px] object-contain border-4 border-brand-orange p-4 rounded-3xl mb-6 shadow-md">
+            <div class="w-full bg-gray-50 p-6 rounded-xl border border-gray-200 text-left space-y-3 text-sm text-gray-800">
+                <div class="flex justify-between border-b pb-2"><span class="font-bold">A/C Name:</span> <span>Banaras Kali Bari Sansthan</span></div>
+                <div class="flex justify-between border-b pb-2"><span class="font-bold">Bank:</span> <span>YES BANK</span></div>
+                <div class="flex justify-between border-b pb-2"><span class="font-bold">A/C No:</span> <span class="font-mono font-bold">129088700000064</span></div>
+                <div class="flex justify-between"><span class="font-bold">UPI ID:</span> <span class="font-mono font-bold">yespay.bizsbiz141397@yesbankltd</span></div>
             </div>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h2 class="heading-font text-2xl font-bold text-gray-900 mb-6">Confirm Your Contribution</h2>
+            <form id="donationForm" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1">Selected Initiative</label>
+                    <input type="text" id="causeField" value="General Donation" readonly class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1">Donation Amount (₹)</label>
+                    <input type="number" id="amountField" placeholder="Enter Amount" class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:border-brand-orange text-lg font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1">Full Name</label>
+                        <input type="text" id="nameField" required class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:border-brand-orange">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1">Phone Number</label>
+                        <input type="text" id="phoneField" required class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:border-brand-orange">
+                    </div>
+                </div>
+                <div class="p-4 bg-[#FFF0E6] rounded-xl border border-[#FFDCA8] mt-4">
+                    <label class="block text-xs font-bold text-[#5A0A0A] uppercase tracking-widest mb-2">Upload Payment Screenshot</label>
+                    <input type="file" id="screenshotField" accept="image/*" class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-orange file:text-white hover:file:bg-[#D68910] cursor-pointer">
+                </div>
+                <button type="submit" class="w-full py-4 bg-brand-green text-white font-bold rounded-xl hover:bg-[#1E2B1F] transition-all shadow-md uppercase tracking-widest text-sm mt-4">Submit Details</button>
+            </form>
+        </div>
+    </main>
+    <footer class="bg-[#1a1a1a] text-white/60 py-12 text-center text-sm mt-auto border-t-4 border-brand-orange">
+        <p>&copy; 2026 Banaras Kali Bari Sansthan. 80G & 12A Certified.</p>
+    </footer>
+    <script>
+    // 1. Auto-fill fields if coming from a specific initiative page
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.has('cause')) document.getElementById('causeField').value = urlParams.get('cause');
+        if(urlParams.has('amount')) document.getElementById('amountField').value = urlParams.get('amount');
+    };
 
-            <div id="verification" class="page hidden">                
-                <h1 class="text-2xl font-bold mb-6">Pending Verifications</h1>                
-                <div class="bg-white rounded-lg shadow overflow-hidden">                    
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-100 border-b border-gray-200">
-                            <tr>
-                                <th class="p-4 font-bold text-gray-700">Date & Time</th>
-                                <th class="p-4 font-bold text-gray-700">Donor</th>
-                                <th class="p-4 font-bold text-gray-700">Amount</th>
-                                <th class="p-4 font-bold text-gray-700">Ref No.</th>
-                                <th class="p-4 font-bold text-gray-700">Mode</th>
-                                <th class="p-4 font-bold text-gray-700">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="queueBody"></tbody>
-                    </table>                
-                </div>            
-            </div>
+    // 2. Handle the Form Submission
+    document.getElementById('donationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = "UPLOADING & SAVING...";
+        submitBtn.disabled = true;
 
-            <div id="cashEntry" class="page hidden">                
-                <h1 class="text-2xl font-bold mb-6">Record Manual Cash</h1>                
-                <form id="cashForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">                    
-                    <input type="text" id="cName" placeholder="Donor Name" class="w-full p-2 border rounded" required>                    
-                    <input type="text" id="cPlace" placeholder="Place" class="w-full p-2 border rounded" required>                    
-                    <input type="number" id="cAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>                    
-                    <input type="text" id="cPan" placeholder="Donor PAN (Optional for 80G)" class="w-full p-2 border rounded uppercase">                    
-                    <select id="cCat" class="w-full p-2 border rounded">                        
-                        <option>Gurukul</option>                        
-                        <option>Gaushala</option>                        
-                        <option>Kanyadaan</option>                        
-                        <option>Temple</option>                    
-                    </select>                    
-                    <button type="submit" class="w-full bg-green-700 text-white p-2 rounded hover:bg-green-800 transition">Save & Print Receipt</button>                
-                </form>            
-            </div>
-
-            <div id="expenses" class="page hidden">                
-                <h1 class="text-2xl font-bold mb-6">Add New Expense</h1>                
-                <form id="expenseForm" class="bg-white p-6 rounded-lg shadow w-full max-w-md space-y-4">                    
-                    <select id="expCat" class="w-full p-2 border rounded">                        
-                        <option value="Gurukul">Gurukul</option>
-                        <option value="Gaushala">Gaushala</option>
-                        <option value="Kanyadaan">Kanyadaan</option>
-                        <option value="Temple">Temple Renovation</option>                    
-                    </select>                    
-                    <input type="number" id="expAmt" placeholder="Amount (₹)" class="w-full p-2 border rounded" required>                    
-                    <input type="text" id="expDesc" placeholder="Description" class="w-full p-2 border rounded">                    
-                    <button type="submit" class="w-full bg-[#5A0A0A] text-white p-2 rounded">Save Expense</button>                
-                </form>            
-            </div>        
-        </div>    
-    </div>
-
-    <script>        
-        document.getElementById("passInput").addEventListener("keypress", function(e) {            
-            if (e.key === "Enter") checkPassword();        
-        });
-
-        function checkPassword() {            
-            var pwd = document.getElementById("passInput").value;            
-            if (pwd === "Kalibadi@2026" || pwd === "kalibadi2026") {                
-                document.getElementById("lock-screen").classList.add("hidden");                
-                document.getElementById("admin-content").classList.remove("hidden");                
-                document.getElementById("admin-content").classList.add("flex");                
-                document.getElementById("main-body").classList.remove("items-center", "justify-center");                
-                init();             
-            } else {                
-                document.getElementById("error-msg").classList.remove("hidden");                
-                document.getElementById("passInput").value = "";            
-            }        
-        }
-
-        function show(id) {            
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));            
-            document.getElementById(id).classList.remove('hidden');        
-        }
-
-        async function init() {            
-            const { data: donations } = await supabaseClient.from('donations').select('*');            
-            const { data: expenses } = await supabaseClient.from('expenses').select('*');                        
+        try {
+            // Gather all the text data from the form
+            const cause = document.getElementById('causeField').value;
+            const amount = document.getElementById('amountField').value;
+            const name = document.getElementById('nameField').value;
+            const phone = document.getElementById('phoneField').value;
+            const fileInput = document.getElementById('screenshotField');
             
-            const verified = donations.filter(d => d.is_verified);            
-            const pending = donations.filter(d => !d.is_verified);            
-            const totalExp = expenses.reduce((a,b) => a + Number(b.amount), 0);                        
-            
-            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');            
-            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');            
-            document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString('en-IN');
+            let screenshotUrl = null;
 
-            const body = document.getElementById('queueBody');            
-            body.innerHTML = '';             
-            
-            pending.forEach(d => {
-                // Format the Date and Time
-                const dateObj = new Date(d.created_at);
-                const formattedDate = dateObj.toLocaleString('en-IN', {
-                    day: '2-digit', month: 'short', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit', hour12: true
-                });
+            // Handle the File Upload (If a file was selected)
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${name.replace(/\s+/g, '')}.${fileExt}`;
 
-                // Handle missing transaction numbers
-                const refNo = d.transaction_number ? d.transaction_number : '<span class="text-gray-400 italic">N/A</span>';
+                // Upload to Supabase Storage using your 'supabaseClient' variable
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('receipts')
+                    .upload(fileName, file);
 
-                // Build the row
-                body.innerHTML += `
-                <tr class="border-b hover:bg-gray-50 transition-colors">
-                    <td class="p-4 text-sm text-gray-600">${formattedDate}</td>
-                    <td class="p-4 font-medium text-gray-900">${d.donor_name}</td>
-                    <td class="p-4 text-green-700 font-bold">₹${d.amount}</td>
-                    <td class="p-4 text-sm font-mono text-gray-600">${refNo}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded-full uppercase tracking-wider font-bold">${d.payment_mode}</span></td>
-                    <td class="p-4">
-                        <button onclick="verify(event, '${d.id}')" class="bg-blue-600 text-white px-4 py-2 rounded shadow-sm text-sm font-bold hover:bg-blue-700 transition w-24">Approve</button>
-                    </td>
-                </tr>`;
-            });        
-        }
+                if (uploadError) throw new Error("Image Upload Failed: " + uploadError.message);
 
-        async function verify(event, id) {            
-            try {
-                // Show the user something is happening
-                const button = event.target;
-                const originalText = button.innerText;
-                button.innerText = "Saving...";
-                button.disabled = true;
-                button.classList.replace('bg-blue-600', 'bg-gray-400');
-
-                // Send the update to Supabase
-                const { error } = await supabaseClient
-                    .from('donations')
-                    .update({ is_verified: true })
-                    .eq('id', id);
-
-                if (error) {
-                    throw error;
-                }
-
-                // Quietly refresh the data WITHOUT reloading the page
-                await init(); 
-
-            } catch (error) {
-                console.error("Verification failed:", error);
-                alert("Failed to verify. Please check your connection and try again.");
+                // Get the public URL for the uploaded image
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('receipts')
+                    .getPublicUrl(fileName);
                 
-                // Restore the button if it failed
-                event.target.innerText = "Approve";
-                event.target.disabled = false;
-                event.target.classList.replace('bg-gray-400', 'bg-blue-600');
-            }        
+                screenshotUrl = publicUrlData.publicUrl;
+            }
+
+            // Save the Data to your 'donations' table
+            const { data: insertData, error: insertError } = await supabaseClient
+                .from('donations')
+                .insert([
+                    { 
+                        initiative_name: cause, 
+                        amount: amount, 
+                        donor_name: name, 
+                        donor_phone: phone, 
+                        screenshot_url: screenshotUrl 
+                    }
+                ]);
+
+            if (insertError) throw new Error("Database Save Failed: " + insertError.message);
+
+            // Genuine Success!
+            alert("Thank you! Your contribution has been securely recorded.");
+            document.getElementById('donationForm').reset();
+
+        } catch (error) {
+            // If ANYTHING fails, alert the user with the exact error
+            alert("Error: " + error.message);
+            console.error(error);
+        } finally {
+            // Restore the button
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
         }
-
-        document.getElementById('expenseForm').addEventListener('submit', async (e) => {            
-            e.preventDefault();            
-            await supabaseClient.from('expenses').insert([{                
-                expense_category: document.getElementById('expCat').value,                
-                amount: document.getElementById('expAmt').value,                
-                description: document.getElementById('expDesc').value            
-            }]);            
-            alert("Expense Added Successfully");             
-            location.reload();        
-        });
-
-        document.getElementById('cashForm').addEventListener('submit', async (e) => {            
-            e.preventDefault();            
-            const name = document.getElementById('cName').value;            
-            const amt = document.getElementById('cAmt').value;            
-            const place = document.getElementById('cPlace').value;            
-            const cat = document.getElementById('cCat').value;            
-            const pan = document.getElementById('cPan').value.toUpperCase();
-
-            // GENERATE RECEIPT NUMBER SECURELY            
-            const dateObj = new Date();            
-            const year = dateObj.getFullYear().toString().slice(-2);            
-            const nextYear = (parseInt(year) + 1).toString();            
-            const monthDate = ("0" + (dateObj.getMonth() + 1)).slice(-2) + ("0" + dateObj.getDate()).slice(-2);            
-            const randomHex = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');            
-            const generatedReceiptNo = `BKS/${year}-${nextYear}/${monthDate}-${randomHex}`;            
-            const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
-            // SAVE TO SUPABASE            
-            await supabaseClient.from('donations').insert([{                
-                donor_name: name,                 
-                amount: amt,                 
-                donor_place: place,                 
-                initiative_name: cat,                 
-                payment_mode: 'Cash',                 
-                is_verified: true,                
-                donor_pan: pan,                
-                receipt_no: generatedReceiptNo            
-            }]);                        
-            
-            // STORE SECURELY IN SESSION (Invisible to URL)            
-            const secureReceiptData = {                
-                name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,                
-                receiptNo: generatedReceiptNo, date: formattedDate            
-            };            
-            sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));                        
-            
-            // CLEAN REDIRECT            
-            window.location.href = 'receipt.html';        
-        });    
-    </script>
+    });
+</script>
 </body>
 </html>
