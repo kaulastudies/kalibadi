@@ -96,15 +96,82 @@
         <p>&copy; 2026 Banaras Kali Bari Sansthan. 80G & 12A Certified.</p>
     </footer>
     <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.has('cause')) document.getElementById('causeField').value = urlParams.get('cause');
-            if(urlParams.has('amount')) document.getElementById('amountField').value = urlParams.get('amount');
-        };
-        document.getElementById('donationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            alert("Thank you! Your submission has been captured.");
-        });
-    </script>
+    // 1. Auto-fill fields if coming from a specific initiative page
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.has('cause')) document.getElementById('causeField').value = urlParams.get('cause');
+        if(urlParams.has('amount')) document.getElementById('amountField').value = urlParams.get('amount');
+    };
+
+    // 2. Handle the Form Submission
+    document.getElementById('donationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = "UPLOADING & SAVING...";
+        submitBtn.disabled = true;
+
+        try {
+            // Gather all the text data from the form
+            const cause = document.getElementById('causeField').value;
+            const amount = document.getElementById('amountField').value;
+            const name = document.getElementById('nameField').value;
+            const phone = document.getElementById('phoneField').value;
+            const fileInput = document.getElementById('screenshotField');
+            
+            let screenshotUrl = null;
+
+            // Handle the File Upload (If a file was selected)
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${name.replace(/\s+/g, '')}.${fileExt}`;
+
+                // Upload to Supabase Storage using your 'supabaseClient' variable
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('receipts')
+                    .upload(fileName, file);
+
+                if (uploadError) throw new Error("Image Upload Failed: " + uploadError.message);
+
+                // Get the public URL for the uploaded image
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('receipts')
+                    .getPublicUrl(fileName);
+                
+                screenshotUrl = publicUrlData.publicUrl;
+            }
+
+            // Save the Data to your 'donations' table
+            const { data: insertData, error: insertError } = await supabaseClient
+                .from('donations')
+                .insert([
+                    { 
+                        initiative_name: cause, 
+                        amount: amount, 
+                        donor_name: name, 
+                        donor_phone: phone, 
+                        screenshot_url: screenshotUrl 
+                    }
+                ]);
+
+            if (insertError) throw new Error("Database Save Failed: " + insertError.message);
+
+            // Genuine Success!
+            alert("Thank you! Your contribution has been securely recorded.");
+            document.getElementById('donationForm').reset();
+
+        } catch (error) {
+            // If ANYTHING fails, alert the user with the exact error
+            alert("Error: " + error.message);
+            console.error(error);
+        } finally {
+            // Restore the button
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
 </body>
 </html>
