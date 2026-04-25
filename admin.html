@@ -14,13 +14,8 @@
     <div id="lock-screen" class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border-t-4 border-[#5A0A0A]">
         <h2 class="text-2xl font-bold text-gray-900 mb-2">Sansthan Admin Gateway</h2>
         <p class="text-sm text-gray-500 mb-6">Restricted Access</p>
-        
         <input type="password" id="passInput" placeholder="Enter Password" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-900">
-        
-        <button onclick="checkPassword()" class="w-full bg-[#5A0A0A] text-white font-bold py-3 rounded-lg hover:bg-red-900 transition">
-            Unlock Dashboard
-        </button>
-        
+        <button onclick="checkPassword()" class="w-full bg-[#5A0A0A] text-white font-bold py-3 rounded-lg hover:bg-red-900 transition">Unlock Dashboard</button>
         <p id="error-msg" class="text-red-500 font-bold mt-4 hidden">Incorrect Password. Access Denied.</p>
     </div>
 
@@ -153,6 +148,16 @@
             const cat = document.getElementById('cCat').value;
             const pan = document.getElementById('cPan').value.toUpperCase();
 
+            // 1. GENERATE RECEIPT NUMBER SECURELY HERE
+            const dateObj = new Date();
+            const year = dateObj.getFullYear().toString().slice(-2);
+            const nextYear = (parseInt(year) + 1).toString();
+            const monthDate = ("0" + (dateObj.getMonth() + 1)).slice(-2) + ("0" + dateObj.getDate()).slice(-2);
+            const randomHex = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');
+            const generatedReceiptNo = `BKS/${year}-${nextYear}/${monthDate}-${randomHex}`;
+            const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            // 2. SAVE TO SUPABASE
             await supabaseClient.from('donations').insert([{
                 donor_name: name, 
                 amount: amt, 
@@ -160,10 +165,19 @@
                 initiative_name: cat, 
                 payment_mode: 'Cash', 
                 is_verified: true,
-                donor_pan: pan
+                donor_pan: pan,
+                receipt_no: generatedReceiptNo // Saved permanently in database
             }]);
             
-            window.location.href = `receipt.html?name=${encodeURIComponent(name)}&amt=${amt}&place=${encodeURIComponent(place)}&cat=${encodeURIComponent(cat)}&mode=Cash&pan=${encodeURIComponent(pan)}`;
+            // 3. STORE SECURELY IN SESSION (Invisible to URL)
+            const secureReceiptData = {
+                name: name, amt: amt, place: place, cat: cat, mode: 'Cash', pan: pan,
+                receiptNo: generatedReceiptNo, date: formattedDate
+            };
+            sessionStorage.setItem('secureReceipt', JSON.stringify(secureReceiptData));
+            
+            // 4. CLEAN REDIRECT (No URL parameters)
+            window.location.href = 'receipt.html';
         });
     </script>
 </body>
