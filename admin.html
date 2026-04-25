@@ -155,22 +155,34 @@
         // --- 2. DATA FETCHING & UI GENERATION ---
 
         async function init() {            
-            const { data: donations } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });            
-            const { data: expenses } = await supabaseClient.from('expenses').select('*');                        
+            // Fetch data safely
+            const { data: donations, error: donError } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });            
+            const { data: expenses, error: expError } = await supabaseClient.from('expenses').select('*');                        
             
-            const verified = donations.filter(d => d.is_verified);            
-            const pending = donations.filter(d => !d.is_verified);            
+            // If the database fails to respond, stop and warn the user
+            if (!donations) {
+                console.error("Database Error:", donError);
+                return;
+            }
+
+            // Identify verified vs pending
+            const verified = donations.filter(d => d.is_verified === true);            
+            const pending = donations.filter(d => d.is_verified === false || d.is_verified === null);            
             
-            // Calculate Totals safely (handling empty expense table)
-            const totalExp = expenses ? expenses.reduce((a,b) => a + Number(b.amount), 0) : 0;                        
+            // Bulletproof Math (Calculates even if a blank field exists)
+            const totalExp = expenses ? expenses.reduce((a,b) => a + (Number(b.amount) || 0), 0) : 0;                        
+            const totalReceived = verified.reduce((a,b) => a + (Number(b.amount) || 0), 0);
+            const totalPending = pending.reduce((a,b) => a + (Number(b.amount) || 0), 0);
             
-            document.getElementById('statReceived').innerText = "₹" + verified.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');            
-            document.getElementById('statPending').innerText = "₹" + pending.reduce((a,b) => a + Number(b.amount), 0).toLocaleString('en-IN');            
+            // Update Dashboard UI
+            document.getElementById('statReceived').innerText = "₹" + totalReceived.toLocaleString('en-IN');            
+            document.getElementById('statPending').innerText = "₹" + totalPending.toLocaleString('en-IN');            
             document.getElementById('statExpenses').innerText = "₹" + totalExp.toLocaleString('en-IN');
 
             const body = document.getElementById('queueBody');            
             body.innerHTML = '';             
             
+            // Build the Queue
             pending.forEach(d => {
                 // Format the Date and Time
                 const dateObj = new Date(d.created_at);
@@ -203,6 +215,13 @@
             });        
         }
 
+        // Force refresh if user clicks "Back" button from the receipt page
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted && sessionStorage.getItem('bkb_admin_auth') === 'true') {
+                init(); 
+            }
+        });
+
         // --- 3. DATABASE UPDATES ---
 
         async function verify(event, id) {            
@@ -228,7 +247,7 @@
 
             } catch (error) {
                 console.error("Verification failed:", error);
-                alert("Failed to verify. Please check your connection and try again.");
+                alert("Failed to verify. Please check your connection and try again. Ensure Supabase UPDATE policy is enabled.");
                 
                 // Restore the button if it failed
                 event.target.innerText = "APPROVE";
